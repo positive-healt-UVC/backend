@@ -1,0 +1,19 @@
+version: '3.8'
+
+networks:
+  msveterinarian:
+    driver: bridge
+
+services:
+  appointments:
+    container_name: activities
+    build: ./events
+    volumes:
+      - ./events/:/usr/src/app
+    networks:
+      - msveterinarian
+    ports:
+      - "3010:3010"
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm start"
+
