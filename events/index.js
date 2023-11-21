@@ -1,22 +1,30 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const cors = require('cors');
-const connectDB = require('./adapter/db.js')
-const db = connectDB();
 
-// Enable CORS
 app.use(cors());
-
-app.get('/', function(req, res) {
-  res.send(db);
-});
 
 const getAllEvents = require('./adapter/db.js');
 const populateDatabase = require('./adapter/db.js');
 
-app.get('/1', function(req, res) {
-  populateDatabase();
-  res.send(getAllEvents());
+app.get('/', async (req, res) => {
+  try {
+    const events = await getAllEvents();
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/populate-database', async (req, res) => {
+  try {
+    await populateDatabase();
+    res.json({ message: 'Database populated successfully' });
+  } catch (error) {
+    console.error('Error populating database:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.set('port', process.env.PORT || 3010);
