@@ -1,15 +1,20 @@
+// Import dependencies
 const express = require('express');
-const app = express();
 const cors = require('cors');
+const database = require('./database/database.js');
 
+// Initialize the application
+const app = express();
+
+// Setup the application
 app.use(cors());
+database.initializeDB();
 
-const getAllEvents = require('./adapter/db.js');
-const populateDatabase = require('./adapter/db.js');
-
+// Get the data from the server
 app.get('/', async (req, res) => {
   try {
-    const events = await getAllEvents();
+    const events = await database.getAllEvents();
+    console.log(events);
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -17,9 +22,10 @@ app.get('/', async (req, res) => {
   }
 });
 
+// Save dummy data to the server
 app.post('/populate-database', async (req, res) => {
   try {
-    await populateDatabase();
+    await database.populateDB();
     res.json({ message: 'Database populated successfully' });
   } catch (error) {
     console.error('Error populating database:', error);
@@ -27,7 +33,7 @@ app.post('/populate-database', async (req, res) => {
   }
 });
 
-app.set('port', process.env.PORT || 3010);
-const server = app.listen(app.get('port'), () => {
+// Start the server
+const server = app.listen(process.env.PORT || 3010, () => {
   console.log(`🍿 Express running → PORT ${server.address().port}`);
 });

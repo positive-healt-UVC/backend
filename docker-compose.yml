@@ -15,4 +15,4 @@ services:
     ports:
       - "3010:3010"
     working_dir: /usr/src/app
-    command: bash -c "npm install && npm install sqlite3 && npm install cors && npm start"
+    command: bash -c "npm install && npm run watch"
