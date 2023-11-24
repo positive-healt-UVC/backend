@@ -1,19 +1,29 @@
 version: '3.8'
 
 networks:
-  msveterinarian:
+  abilitylink:
     driver: bridge
 
 services:
   appointments:
-    container_name: activities
+    container_name: msevents
     build: ./events
     volumes:
       - ./events/:/usr/src/app
     networks:
-      - msveterinarian
+      - abilitylink
     ports:
       - "3010:3010"
     working_dir: /usr/src/app
-    command: bash -c "npm install && npm start"
-
+    command: bash -c "npm install && npm run watch"
+  gateway:
+    container_name: apigateway
+    build: ./apigateway
+    volumes:
+      - ./apigateway/code:/usr/src/app
+    networks:
+      - abilitylink
+    ports:
+      - "3011:3011"
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm run dev"
