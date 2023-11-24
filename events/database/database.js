@@ -98,9 +98,34 @@ function populateDB() {
   db.close();
 }
 
+function insertEvent(event) {
+  // Connect to the database
+  const db = connectDB();
+
+  
+  // Insert sample data into the "events" table
+  db.serialize(() => {
+    // Create a template string for the database
+    const insertStmt = db.prepare(
+      'INSERT INTO events (name, date, location) VALUES (?, ?, ?)'
+    );
+
+    // Insert the event into the database
+    insertStmt.run(event.name, event.date, 'test');
+
+    // Finalize the insertion and inform the app
+    insertStmt.finalize();
+    console.log('Sample data inserted into the "events" table.');
+  });
+
+  // Close the database connection
+  db.close();
+}
+
 // Export the different parts of the modules
 module.exports = {
   'initializeDB': initializeDB,
   'populateDB': populateDB,
-  'getAllEvents': getAllEvents
+  'getAllEvents': getAllEvents,
+  'insertEvent': insertEvent
 };

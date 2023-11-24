@@ -9,6 +9,7 @@ const app = express();
 
 // Setup the application
 app.use(cors());
+app.use(express.json());
 database.initializeDB();
 
 // Save dummy data to the server
@@ -63,6 +64,19 @@ app.get('/events/test', async (req, res) => {
     res.json(testData);
   } catch (error) {
     console.error('Error fetching test events:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/events', cors(), async (req, res) => {
+  try {
+    const newEventData = req.body;
+    // res.send(req.body);
+    console.log(req);
+    await database.insertEvent(newEventData);
+    res.status(201).json({ message: 'Event data successfully added' });
+  } catch (error) {
+    console.error('Error handling post request for events:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
