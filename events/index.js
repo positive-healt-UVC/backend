@@ -55,9 +55,10 @@ app.get('/events', cors() , async (req, res, next) => {
 //test data
 app.get('/events/test', async (req, res) => {
   try {
+
     const testData = [
-      { id: 1, name: 'Test Event 1', date: '2023-03-01', location: 'Test Location 1' },
-      { id: 2, name: 'Test Event 2', date: '2023-03-15', location: 'Test Location 2' },
+      { name: 'Event 1', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ullamcorper mollis dolor ac interdum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id ligula nisi. Nunc viverra velit congue nibh varius, eu rhoncus est cursus. Nunc finibus maximus enim, at blandit orci ornare nec. Nam sagittis luctus quam, a bibendum odio venenatis eget. Vestibulum fermentum ac urna vitae euismod', date: '2023-01-01', startingTime: '12:01', endingtime: '13:01', location: 'Location 1' },
+      { name: 'Event 2', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ullamcorper mollis dolor ac interdum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id ligula nisi. Nunc viverra velit congue nibh varius, eu rhoncus est cursus. Nunc finibus maximus enim, at blandit orci ornare nec. Nam sagittis luctus quam, a bibendum odio venenatis eget. Vestibulum fermentum ac urna vitae euismod', date: '2023-01-01', startingTime: '13:01', endingtime: '14:01', location: 'Location 2' },
     ];
 
     console.log('Test Data:', testData);
