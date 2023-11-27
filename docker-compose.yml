@@ -2,6 +2,7 @@ version: '3.8'
 
 networks:
   abilitylink:
+    name: abilitylink
     driver: bridge
 
 services:
@@ -16,8 +17,9 @@ services:
       - "3010:3010"
     working_dir: /usr/src/app
     command: bash -c "npm install && npm run watch"
+
   gateway:
-    container_name: apigateway
+    container_name: gateway
     build: ./dynamischeGateway
     volumes:
       - ./dynamischeGateway/:/usr/src/app

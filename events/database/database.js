@@ -64,6 +64,8 @@ async function getAllEvents() {
     db.all('SELECT * FROM events', (error, rows) => {
       resolve(rows);
     });
+
+    db.close();
   });
 }
 
@@ -86,7 +88,9 @@ async function getEvent(id) {
   return new Promise((resolve, reject) => {
     db.get(`SELECT * FROM events WHERE id=${id}`, (errors, rows) => {
       resolve(rows);
-    })
+    });
+
+    db.close();
   })
 }
 

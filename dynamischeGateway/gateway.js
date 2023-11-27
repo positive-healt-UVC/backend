@@ -10,4 +10,4 @@ app.use('/', routes)
 
 app.listen(PORT, () =>{
   console.log(`Gateway has started on ${PORT}`);
-})
+});
