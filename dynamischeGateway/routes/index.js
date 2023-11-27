@@ -3,9 +3,10 @@ const router = express.Router();
 const axios = require("axios");
 const registry = require("./registry.json");
 
-router.all("/:apiName/:path", (req, res) => {
+router.all("/:apiName/:path/*", (req, res) => {
   console.log("this works");
   if (registry.services[req.params.apiName]) {
+    console.log(registry.services[req.params.apiName].url + req.params.path);
     axios({
       method: req.method,
       url: registry.services[req.params.apiName].url + req.params.path,
