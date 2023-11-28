@@ -58,19 +58,18 @@ function getAllEvents(selectedDay) {
   });
 
   return new Promise((resolve, reject) => {
-    const endDate = new Date(selectedDay);
-    endDate.setDate(endDate.getDate() + 7);
+    const startingDayNumber = parseInt(selectedDay);
+    const startingDay = new Date(2023, 0);
+    startingDay.setDate(startingDayNumber);
+    const startingDayFormatted = startingDay.toISOString().split("T")[0];
 
-    // Set the default year to 2023
-    const defaultYear = 2023;
-    const selectedDate = new Date(selectedDay);
-    selectedDate.setFullYear(defaultYear);
-    endDate.setFullYear(defaultYear);
+    const endingDayNumber = startingDayNumber + 6;
+    const endingDay = new Date(2023, 0);
+    endingDay.setDate(endingDayNumber);
+    const endingDayFormatted = endingDay.toISOString().split("T")[0];
 
-    const formattedSelectedDay = formatDate(selectedDate);
-    const formattedEndDate = formatDate(endDate);
 
-    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ?', [formattedSelectedDay, formattedEndDate], (error, rows) => {
+    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [startingDayFormatted, endingDayFormatted], (error, rows) => {
       if (error) {
         reject(error);
       } else {
@@ -80,18 +79,6 @@ function getAllEvents(selectedDay) {
       db.close();
     });
   });
-}
-
-function formatDate(date) {
-  const formattedDate = new Date(date);
-  const year = formattedDate.getFullYear();
-  let month = (formattedDate.getMonth() + 1).toString();
-  let day = formattedDate.getDate().toString();
-
-  month = month.length === 1 ? '0' + month : month;
-  day = day.length === 1 ? '0' + day : day;
-
-  return `${year}-${month}-${day}`;
 }
 
 /**
