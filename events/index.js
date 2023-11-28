@@ -13,9 +13,12 @@ app.use(express.json());
 database.initializeDB();
 
 // Get the data from the server
-app.get('/events', cors() , async (req, res, next) => {
+app.get('/events/day/:selectedDay', cors(), async (req, res) => {
   try {
-    const events = await database.getAllEvents();
+    const selectedDay = req.params.selectedDay;
+    console.log(selectedDay)
+    const events = await database.getAllEvents(selectedDay);
+    console.log(events)
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);

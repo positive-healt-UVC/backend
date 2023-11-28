@@ -50,23 +50,48 @@ function initializeDB() {
  * 
  * @returns the events present inside the database.
  */
-async function getAllEvents() {
-  // Connect to the database
+function getAllEvents(selectedDay) {
   const db = connectDB();
 
-  // Setup the error
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
-  // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM events', (error, rows) => {
-      resolve(rows);
-    });
+    const endDate = new Date(selectedDay);
+    endDate.setDate(endDate.getDate() + 7);
 
-    db.close();
+    // Set the default year to 2023
+    const defaultYear = 2023;
+    const selectedDate = new Date(selectedDay);
+    selectedDate.setFullYear(defaultYear);
+    endDate.setFullYear(defaultYear);
+
+    const formattedSelectedDay = formatDate(selectedDate);
+    const formattedEndDate = formatDate(endDate);
+
+    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ?', [formattedSelectedDay, formattedEndDate], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+
+      db.close();
+    });
   });
+}
+
+function formatDate(date) {
+  const formattedDate = new Date(date);
+  const year = formattedDate.getFullYear();
+  let month = (formattedDate.getMonth() + 1).toString();
+  let day = formattedDate.getDate().toString();
+
+  month = month.length === 1 ? '0' + month : month;
+  day = day.length === 1 ? '0' + day : day;
+
+  return `${year}-${month}-${day}`;
 }
 
 /**
