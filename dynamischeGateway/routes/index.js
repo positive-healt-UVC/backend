@@ -88,6 +88,7 @@ function performRequest(originalRequest) {
 }
 
 /**
+ * [Incomplete]
  * Create a function that can be used to handle the response of the Axios call.
  * 
  * @param {object} responseHandler the response object of the original request (res).
@@ -100,6 +101,7 @@ function createResponseHandler(responseHandler) {
 }
 
 /**
+ * [Incomplete]
  * Create a function that can deal with errors during the Axios call.
  * 
  * @param {object} responseHandler the response object of the original request (res).
@@ -112,6 +114,7 @@ function createErrorHandler(responseHandler) {
 }
 
 /**
+ * [Incomplete]
  * Deal with the situation where the requested service does not exist.
  * 
  * @param {object} responseHandler responseHandler the response object of the original request (res).

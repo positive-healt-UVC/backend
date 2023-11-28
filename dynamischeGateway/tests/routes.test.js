@@ -68,6 +68,7 @@ describe('Does Service Exists', () => {
     })
 });
 
+// Test whether the URL's are created correctly
 describe('Creating the Target URL', () => {
     // Valid URL with parameters
     test('Valid data with parameters', () => {
