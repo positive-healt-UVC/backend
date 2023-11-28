@@ -9,11 +9,18 @@ const registry = require("./registry.json");
  * The format of the message will be: "Incoming request: [METHOD] URL".
  * All capitalized parts of this string will be replaced with their values.
  * 
+ * Parameters need to be provided and be not empty.
+ * If they are not, an error is printed to the console instead.
+ * 
  * @param {string} method the method used to create the request (POST).
  * @param {string} url the url accessed by the request (/example/example).
  */
 function logIncomingRequest(method, url) {
-  console.info(`Incoming request: [${method}] ${url}`);
+  // When all data has correctly been provided, print the info with the request details
+  if (method && url) console.info(`Incoming request: [${method}] ${url}`);
+
+  // When the data isn't present, print an error
+  else console.error('Incoming request with invalid parameters.');
 }
 
 /**
