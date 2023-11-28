@@ -1,0 +1,17 @@
+name: run-test-suites
+run-name: ${{ github.actor }} is testing...
+on: [push]
+jobs:
+  run-test-suites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Setup Project
+        working-directory: ./dynamischeGateway
+        run: npm install
+      - name: Run Tests
+        working-directory: ./dynamischeGateway
+        run: npm test
