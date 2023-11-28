@@ -36,13 +36,29 @@ function serviceExist(requestApi) {
 /**
  * Create a URL to the target micro service.
  * 
- * @param {object} requestParameters the parameters bundled with the original request (req.params).
- * @returns the formatted target url (http://API:PORT/ROUTE/PARAMETERS). 
+ * @param {object} parameters the parameters bundled with the original request (req.params).
+ * @returns the formatted target url (http://API:PORT/ROUTE/PARAMETERS), null if provided data was invalid.
+ * @throws Throws a descriptive error when: 
+ * [1] the service is not registered
+ * [2] not all required data is available.
  */
-function createTargetUrl(requestParameters) {
-  return registry.services[requestParameters.apiName].url
-    + requestParameters.path + '/'
-    + requestParameters['0'];
+function createTargetUrl(parameters) {
+  // Check whether all the required data is present, 
+  try {
+    if (parameters && parameters.apiName && parameters.path && typeof parameters['0'] === 'string') {
+      return registry.services[parameters.apiName].url
+        + parameters.path + '/'
+        + parameters['0'];
+    }
+  } 
+  
+  // The requrested service is not registered
+  catch {
+    throw Error("Requested service is not available, a check is available through the serviceExist method");
+  }
+
+  // Not all required data was set
+  throw Error("The 'parameters' didn't contain the required attributes: apiName, path and 0");
 }
 
 /**
@@ -120,7 +136,7 @@ router.all("/:apiName/:path/*", (req, res) => {
     // Stop the execution of the function
     return;
   }
-  
+
   // The requested service does not exit, handle the not defined situation
   handleNotDefined(res);
 });
