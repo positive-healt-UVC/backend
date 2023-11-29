@@ -20,9 +20,9 @@ services:
 
   gateway:
     container_name: gateway
-    build: ./dynamischeGateway
+    build: ./gateway
     volumes:
-      - ./dynamischeGateway/:/usr/src/app
+      - ./gateway/:/usr/src/app
     networks:
       - abilitylink
     ports:

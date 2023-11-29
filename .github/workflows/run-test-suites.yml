@@ -10,8 +10,8 @@ jobs:
         with:
           node-version: '20'
       - name: Setup Project
-        working-directory: ./dynamischeGateway
+        working-directory: ./gateway
         run: npm install
       - name: Run Tests
-        working-directory: ./dynamischeGateway
+        working-directory: ./gateway
         run: npm test
