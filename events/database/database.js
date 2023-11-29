@@ -50,22 +50,34 @@ function initializeDB() {
  * 
  * @returns the events present inside the database.
  */
-async function getAllEvents() {
-  // Connect to the database
+function getAllEvents(selectedDay) {
   const db = connectDB();
 
-  // Setup the error
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
-  // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM events', (error, rows) => {
-      resolve(rows);
-    });
+    const startingDayNumber = parseInt(selectedDay);
+    const startingDay = new Date(2023, 0);
+    startingDay.setDate(startingDayNumber);
+    const startingDayFormatted = startingDay.toISOString().split("T")[0];
 
-    db.close();
+    const endingDayNumber = startingDayNumber + 6;
+    const endingDay = new Date(2023, 0);
+    endingDay.setDate(endingDayNumber);
+    const endingDayFormatted = endingDay.toISOString().split("T")[0];
+
+
+    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [startingDayFormatted, endingDayFormatted], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+
+      db.close();
+    });
   });
 }
 
