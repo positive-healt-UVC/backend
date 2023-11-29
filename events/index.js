@@ -13,10 +13,22 @@ app.use(express.json());
 database.initializeDB();
 
 // Get the data from the server
+app.get('/events', cors() , async (req, res, next) => {
+  try {
+    const events = await database.getAllEvents();
+    console.log(events);
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get the data between a day and 7 days
 app.get('/events/day/:selectedDay', cors(), async (req, res) => {
   try {
     const selectedDay = req.params.selectedDay;
-    const events = await database.getAllEvents(selectedDay);
+    const events = await database.getNextWeekFromDay(selectedDay);
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);

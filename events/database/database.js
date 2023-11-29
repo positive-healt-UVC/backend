@@ -50,7 +50,33 @@ function initializeDB() {
  * 
  * @returns the events present inside the database.
  */
-function getAllEvents(selectedDay) {
+async function getAllEvents() {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on("error", function(error) {
+    console.log("Error reading events: ", error);
+  }); 
+
+  // Get all the rows and return them to the application
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM events', (error, rows) => {
+      console.log(rows);
+      resolve(rows);
+    });
+  });
+}
+
+/**
+ * Get all the events between a provided day and 7 days later.
+ * The date provided is the starting day. 
+ * The app looks between this day and 7 days laters for events.
+ * 
+ * @param day the day the application start searching from.
+ * @returns the events present inside the database.
+ */
+function getNextWeekFromDay(day) {
   const db = connectDB();
 
   db.on("error", function (error) {
@@ -138,6 +164,7 @@ module.exports = {
   'connectDB': connectDB,
   'initializeDB': initializeDB,
   'getAllEvents': getAllEvents,
+  'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
   'insertEvent': insertEvent
 };
