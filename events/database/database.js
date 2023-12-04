@@ -86,15 +86,11 @@ function getNextWeekFromDay(selectedDay) {
   return new Promise((resolve, reject) => {
     const originalDate = new Date(selectedDay);
     const originalFormattedDate = originalDate.toISOString().split('T')[0]
-    console.log(originalFormattedDate);
 
     const newDate = new Date(originalDate);
     newDate.setDate(originalDate.getDate() + 6)
-
     const newFormattedDate = newDate.toISOString().split('T')[0]
-    console.log(newFormattedDate)
-
-
+    
     db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [originalFormattedDate, newFormattedDate], (error, rows) => {
       if (error) {
         reject(error);
