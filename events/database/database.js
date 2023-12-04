@@ -89,7 +89,7 @@ function getNextWeekFromDay(selectedDay) {
     console.log(originalFormattedDate);
 
     const newDate = new Date(originalDate);
-    newDate.setDate(originalDate.getDate() + 7)
+    newDate.setDate(originalDate.getDate() + 6)
 
     const newFormattedDate = newDate.toISOString().split('T')[0]
     console.log(newFormattedDate)
