@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is deploying...
 on: [push]
 jobs:
     deploy-to-server:
-        runs-on: [self-hosted, Windows, X64]
+        runs-on: self-hosted
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v3
