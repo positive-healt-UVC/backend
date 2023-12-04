@@ -76,7 +76,7 @@ async function getAllEvents() {
  * @param day the day the application start searching from.
  * @returns the events present inside the database.
  */
-function getNextWeekFromDay(day) {
+function getNextWeekFromDay(selectedDay) {
   const db = connectDB();
 
   db.on("error", function (error) {
@@ -93,7 +93,6 @@ function getNextWeekFromDay(day) {
     const endingDay = new Date(2023, 0);
     endingDay.setDate(endingDayNumber);
     const endingDayFormatted = endingDay.toISOString().split("T")[0];
-
 
     db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [startingDayFormatted, endingDayFormatted], (error, rows) => {
       if (error) {
