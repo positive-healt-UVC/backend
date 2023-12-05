@@ -88,6 +88,7 @@ function getNextWeekFromDay(day) {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     const beginDate = new Date(day);
+    beginDate.setDate(beginDate.getDate() + 1)
     const beginFormattedDate = beginDate.toISOString().split('T')[0]
 
     const endDate = new Date(beginDate);
