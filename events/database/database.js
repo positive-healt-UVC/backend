@@ -76,25 +76,26 @@ async function getAllEvents() {
  * @param day the day the application start searching from.
  * @returns the events present inside the database.
  */
-function getNextWeekFromDay(selectedDay) {
+function getNextWeekFromDay(day) {
+  // connect to the dabatase
   const db = connectDB();
 
+  // setup the error
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
+  // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
-    const startingDayNumber = parseInt(selectedDay);
-    const startingDay = new Date(2023, 0);
-    startingDay.setDate(startingDayNumber);
-    const startingDayFormatted = startingDay.toISOString().split("T")[0];
+    const beginDate = new Date(day);
+    const beginFormattedDate = beginDate.toISOString().split('T')[0]
 
-    const endingDayNumber = startingDayNumber + 6;
-    const endingDay = new Date(2023, 0);
-    endingDay.setDate(endingDayNumber);
-    const endingDayFormatted = endingDay.toISOString().split("T")[0];
-
-    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [startingDayFormatted, endingDayFormatted], (error, rows) => {
+    const endDate = new Date(beginDate);
+    endDate.setDate(beginDate.getDate() + 6)
+    const endFormattedDate = endDate.toISOString().split('T')[0]
+    
+    // Return the data from the API
+    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [beginFormattedDate, endFormattedDate], (error, rows) => {
       if (error) {
         reject(error);
       } else {
