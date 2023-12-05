@@ -12,34 +12,6 @@ app.use(cors());
 app.use(express.json());
 database.initializeDB();
 
-// Save dummy data to the server
-app.post('/populate-database', async (req, res) => {
-  try {
-    await database.populateDB();
-    res.json({ message: 'Database populated successfully' });
-  } catch (error) {
-    console.error('Error populating database:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.options('/events', (req, res, next) => {
-  try {
-    //set header before response
-    res.header({
-      allow: 'GET, POST, OPTIONS',
-      'Content-type': 'application/json',
-      Data: Date.now(),
-      'Content-length': 0,
-    });
-    //response
-    res.sendStatus(200);
-  } catch (err) {
-    next(err);
-  }
-});
-
-
 // Get the data from the server
 app.get('/events', cors() , async (req, res, next) => {
   try {
@@ -52,28 +24,33 @@ app.get('/events', cors() , async (req, res, next) => {
   }
 });
 
-//test data
-app.get('/events/test', async (req, res) => {
+// Get the data between a day and 7 days
+app.get('/events/date/:day', cors(), async (req, res) => {
   try {
+    const day = req.params.day;
+    const events = await database.getNextWeekFromDay(day);
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
-    const testData = [
-      { name: 'Event 1', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ullamcorper mollis dolor ac interdum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id ligula nisi. Nunc viverra velit congue nibh varius, eu rhoncus est cursus. Nunc finibus maximus enim, at blandit orci ornare nec. Nam sagittis luctus quam, a bibendum odio venenatis eget. Vestibulum fermentum ac urna vitae euismod', date: '2023-01-01', startingTime: '12:01', endingtime: '13:01', location: 'Location 1' },
-      { name: 'Event 2', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ullamcorper mollis dolor ac interdum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id ligula nisi. Nunc viverra velit congue nibh varius, eu rhoncus est cursus. Nunc finibus maximus enim, at blandit orci ornare nec. Nam sagittis luctus quam, a bibendum odio venenatis eget. Vestibulum fermentum ac urna vitae euismod', date: '2023-01-01', startingTime: '13:01', endingtime: '14:01', location: 'Location 2' },
-    ];
-
-    console.log('Test Data:', testData);
-    res.json(testData);
+//test data
+app.get('/events/:id', async (req, res) => {
+  try {
+    const data = await database.getEvent(req.params.id);
+    res.json(data);
   } catch (error) {
     console.error('Error fetching test events:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
+// Posting data and saving it to the server
 app.post('/events', cors(), async (req, res) => {
   try {
     const newEventData = req.body;
-    // res.send(req.body);
-    console.log(req);
     await database.insertEvent(newEventData);
     res.status(201).json({ message: 'Event data successfully added' });
   } catch (error) {
