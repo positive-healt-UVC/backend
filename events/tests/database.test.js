@@ -1,10 +1,10 @@
 const assert = require('assert');
 const { connectDB, initializeDB } = require('../database/database');
-initializeDB();
 
 describe('Database Tests', function () {
 
     it('Database should have the "events" table', function (done) {
+        initializeDB();
         const db = connectDB();
 
         // Query to check if the "events" table exists
