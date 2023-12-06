@@ -1,0 +1,16 @@
+{
+  "services": {
+    "events": {
+      "apiName": "events",
+      "host": "http://events",
+      "port": 3010,
+      "url": "http://events:3010/"
+    },
+    "register": {
+      "apiName": "register",
+      "host": "http://register",
+      "port": 3011,
+      "url": "http://register:3011/"
+    }
+  }
+}

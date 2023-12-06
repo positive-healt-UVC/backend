@@ -10,7 +10,7 @@ services:
     container_name: events
     build: ./events
     volumes:
-      - ./events/:/usr/src/app
+      - ./events:/usr/src/app
     networks:
       - abilitylink
     ports:
@@ -22,10 +22,22 @@ services:
     container_name: gateway
     build: ./gateway
     volumes:
-      - ./gateway/:/usr/src/app
+      - ./gateway:/usr/src/app
     networks:
       - abilitylink
     ports:
       - "3000:3000"
     working_dir: /usr/src/app
     command: bash -c "npm install && npm run dev"
+
+  login:
+    container_name: login
+    build: ./login
+    volumes:
+      - ./login:/usr/src/app
+    networks:
+      - abilitylink
+    ports:
+      - "3011:3011"
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm start"
