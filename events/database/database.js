@@ -62,7 +62,6 @@ async function getAllEvents() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM events', (error, rows) => {
-      console.log(rows);
       resolve(rows);
     });
   });

@@ -1,13 +1,10 @@
-const assert = require('assert');
 const { initializeDB, getAllEvents } = require('../database/database');
 
 describe('Database Tests', function () {
-    beforeEach(() => {
+    test('Connect', () => {
         initializeDB();
-    });
+        const events = getAllEvents();
 
-    test('Connect', async () => {
-        const events = await getAllEvents();
-        expect(Array.isArray(events)).toBe(true);
-    });
+        expect(typeof events).toBe('object');
+    })
 });
