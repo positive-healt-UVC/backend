@@ -86,9 +86,12 @@ function getNextWeekFromDay(day) {
 
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
+    // Get the start day of the week, make sure the week starts at a monday
     const beginDate = new Date(day);
+    beginDate.setDate(beginDate.getDate() + 1)
     const beginFormattedDate = beginDate.toISOString().split('T')[0]
 
+    // Get the final day of the week
     const endDate = new Date(beginDate);
     endDate.setDate(beginDate.getDate() + 6)
     const endFormattedDate = endDate.toISOString().split('T')[0]
