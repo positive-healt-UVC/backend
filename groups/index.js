@@ -25,6 +25,17 @@ app.get('/groups', cors() , async (req, res, next) => {
   }
 });
 
+app.get('/groupMembers', cors() , async (req, res, next) => {
+  try {
+    const groupMembers = await database.getAllGroupMembers();
+    console.log(groupMembers);
+    res.json(groupMembers);
+  } catch (error) {
+    console.error('Error fetching groupMembers:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 //test data
 app.get('/groups/:id', async (req, res) => {
   try {
@@ -36,7 +47,7 @@ app.get('/groups/:id', async (req, res) => {
   }
 });
 
-// Posting data and saving it to the server
+//posting data and saving it to the server
 app.post('/groups', cors(), async (req, res) => {
   try {
     const newGroupData = req.body;

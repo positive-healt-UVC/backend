@@ -79,9 +79,9 @@ function fillDatabase() {
 }
 
 /**
- * Get all the events saved into the database.
+ * Get all the group saved into the database.
  * 
- * @returns the events present inside the database.
+ * @returns the group present inside the database.
  */
 async function getAllGroups() {
   // Connect to the database
@@ -101,6 +101,28 @@ async function getAllGroups() {
   });
 }
 
+/**
+ * Get all the groupMembers saved into the database.
+ * 
+ * @returns the groupMembers present inside the database.
+ */
+async function getAllGroupMembers() {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on("error", function(error) {
+    console.log("Error reading groupMembers: ", error);
+  }); 
+
+  // Get all the rows and return them to the application
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM groupMembers', (error, rows) => {
+      console.log(rows);
+      resolve(rows);
+    });
+  });
+}
 /**
  * Get a single event from the database by id.
  * 
@@ -139,11 +161,11 @@ function insertGroup(group) {
   db.serialize(() => {
     // Create a template string for the database
     const insertStmt = db.prepare(
-      'INSERT INTO groups (name, carer) VALUES (?, ?)'
+      'INSERT INTO groups (carer, name) VALUES (?, ?)'
     );
 
     // Insert the event into the database
-    insertStmt.run(group.name, group.carer);
+    insertStmt.run(group.carer, group.name);
 
     // Finalize the insertion and inform the app
     insertStmt.finalize();
@@ -159,6 +181,7 @@ module.exports = {
   'initializeDB': initializeDB,
   'getAllGroups': getAllGroups,
   'getGroup': getGroup,
+  'getAllGroupMembers': getAllGroupMembers,
   'insertGroup': insertGroup,
   'fillDatabase':fillDatabase
 };
