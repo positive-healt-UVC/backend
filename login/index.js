@@ -48,13 +48,26 @@ app.get('/users/test', async (req, res) => { // Change to "/users/test"
 });
 
 // Register a new user
-app.post('/users', cors(), async (req, res) => { // Change to "/users"
+app.post('/users', cors(), async (req, res) => {
   try {
     const newUserData = req.body;
-    await insertUser(newUserData);
+    await database.insertUser(newUserData);
     res.status(201).json({ message: 'User data successfully added' });
   } catch (error) {
     console.error('Error handling post request for user data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Modify the route to handle login
+app.post('/users/login', cors(), async (req, res) => {
+  try {
+    const userCredentials = req.body;
+    const loginResult = await database.loginUser(userCredentials);
+    
+    res.json(loginResult);
+  } catch (error) {
+    console.error('Error handling login request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

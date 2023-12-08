@@ -32,10 +32,10 @@ function initializeDB() {
   // Run the command
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    password TEXT NOT NULL,
-    age INTEGER NOT NULL,
-    handicap TEXT NOT NULL
+    name TEXT,
+    password TEXT,
+    age INTEGER,
+    handicap TEXT
   )`);
 
   // Close the database connection
@@ -67,34 +67,80 @@ async function getAllUsers() {
   });
 }
 
-
 function populateDB() {
   // Connect to the database
   const db = connectDB();
 }
 
-function insertUser(user) {
+async function insertUser(user) {
   // Connect to the database
   const db = connectDB();
-  
-  // Insert sample data into the "users" table
-  db.serialize(() => {
-    // Create a template string for the database
-    const insertStmt = db.prepare(
-      'INSERT INTO users (name, password, age, handicap) VALUES (?, ?, ?, ?)'
-    );
 
-    // Insert the user into the database
-    insertStmt.run(user.name, user.password, user.age, user.handicap);
+  // Check if the user already exists
+  const existingUser = await new Promise((resolve, reject) => {
+    db.get('SELECT * FROM users WHERE name = ? AND password = ?', [user.name, user.password], (error, row) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
+  });
 
-    // Finalize the insertion and inform the app
-    insertStmt.finalize();
-    console.log('Sample data inserted into the "users" table.');
+  if (existingUser) {
+    // User exists, return success response
+    return { message: 'User logged in successfully' };
+  }
+
+  // Insert the user into the database
+  db.run('INSERT INTO users (name, password, age, handicap) VALUES (?, ?, ?, ?)',
+    [user.name, user.password, user.age || null, user.handicap || null], // Use an array for values
+
+    // Callback function to handle errors
+    function (error) {
+      if (error) {
+        console.error('Error inserting user:', error);
+      } else {
+        console.log('User inserted successfully');
+      }
+
+      // Close the database connection
+      db.close();
+    }
+  );
+
+  return { message: 'User registered successfully' };
+}
+
+// Add a new function in your database module to handle login
+async function loginUser(user) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Check if the user exists and the password matches
+  const existingUser = await new Promise((resolve, reject) => {
+    db.get('SELECT * FROM users WHERE name = ? AND password = ?', [user.username, user.password], (error, row) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
   });
 
   // Close the database connection
   db.close();
+
+  if (existingUser) {
+    // User exists, return success response
+    return { message: 'User logged in successfully' };
+  } else {
+    // User does not exist or incorrect password, return error response
+    return { message: 'Invalid credentials' };
+  }
 }
+
+
 
 // Export the different parts of the modules
 module.exports = {
@@ -102,5 +148,6 @@ module.exports = {
   'initializeDB': initializeDB,
   'populateDB': populateDB,
   'getAllUsers': getAllUsers,
-  'insertUser': insertUser
+  'insertUser': insertUser,
+  'loginUser': loginUser,
 };
