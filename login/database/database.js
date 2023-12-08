@@ -35,6 +35,7 @@ function initializeDB() {
     name TEXT,
     password TEXT,
     age INTEGER,
+    phoneNum TEXT,
     handicap TEXT
   )`);
 
@@ -93,8 +94,8 @@ async function insertUser(user) {
   }
 
   // Insert the user into the database
-  db.run('INSERT INTO users (name, password, age, handicap) VALUES (?, ?, ?, ?)',
-    [user.name, user.password, user.age || null, user.handicap || null], // Use an array for values
+  db.run('INSERT INTO users (name, password, age, phoneNum, handicap) VALUES (?, ?, ?, ?, ?)',
+    [user.name, user.password, user.age || null, user.phoneNum, user.handicap || null], // Use an array for values
 
     // Callback function to handle errors
     function (error) {
