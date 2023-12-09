@@ -64,7 +64,6 @@ app.post('/users/login', cors(), async (req, res) => {
   try {
     const userCredentials = req.body;
     const loginResult = await database.loginUser(userCredentials);
-    
     res.json(loginResult);
   } catch (error) {
     console.error('Error handling login request:', error);

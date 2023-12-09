@@ -133,13 +133,14 @@ async function loginUser(user) {
   db.close();
 
   if (existingUser) {
-    // User exists, return success response
-    return { message: 'User logged in successfully' };
+    // User exists, return success response with user ID
+    return { message: 'User logged in successfully', userId: existingUser.id };
   } else {
     // User does not exist or incorrect password, return error response
     return { message: 'Invalid credentials' };
   }
 }
+
 
 
 
