@@ -62,7 +62,6 @@ async function getAllUsers() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM users', (error, rows) => {
-      console.log(rows);
       resolve(rows);
     });
   });

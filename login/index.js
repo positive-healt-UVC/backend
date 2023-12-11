@@ -38,8 +38,6 @@ app.get('/users/test', async (req, res) => { // Change to "/users/test"
     const testData = [
       // Your test data
     ];
-
-    console.log('Test Data:', testData);
     res.json(testData);
   } catch (error) {
     console.error('Error fetching test data:', error);
