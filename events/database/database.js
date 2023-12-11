@@ -37,7 +37,8 @@ function initializeDB() {
           date TEXT,
           startingTime TEXT,
           endingTime TEXT,
-          location TEXT);`
+          location TEXT,
+          FOREIGN KEY (user_id) REFERENCES users(id));`
   );
 
   // Close the database connection
@@ -147,11 +148,11 @@ function insertEvent(event) {
   db.serialize(() => {
     // Create a template string for the database
     const insertStmt = db.prepare(
-      'INSERT INTO events (name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
     );
 
     // Insert the event into the database
-    insertStmt.run(event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
 
     // Finalize the insertion and inform the app
     insertStmt.finalize();
@@ -161,6 +162,22 @@ function insertEvent(event) {
   db.close();
 }
 
+// Fetch appointments for a specific user
+async function getAppointmentsForUser(userId) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM appointments WHERE user_id = ?', [userId], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+      db.close();
+    });
+  });
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
@@ -168,5 +185,6 @@ module.exports = {
   'getAllEvents': getAllEvents,
   'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
-  'insertEvent': insertEvent
+  'insertEvent': insertEvent,
+  'getAppointmentsForUser': getAppointmentsForUser
 };
