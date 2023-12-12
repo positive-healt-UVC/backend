@@ -225,7 +225,6 @@ async function updateEvent(id, updatedEvent) {
     );
 
     updateStmt.finalize();
-    console.log("updated", id )
   });
 }
 
