@@ -6,18 +6,6 @@ networks:
     driver: bridge
 
 services:
-  events:
-    container_name: events
-    build: ./events
-    volumes:
-      - ./events/:/usr/src/app
-    networks:
-      - abilitylink
-    ports:
-      - "3010:3010"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run watch"
-
   gateway:
     container_name: gateway
     build: ./gateway
@@ -29,3 +17,39 @@ services:
       - "3000:3000"
     working_dir: /usr/src/app
     command: bash -c "npm install && npm run dev"
+
+  events:
+    container_name: events
+    build: ./events
+    volumes:
+      - ./events:/usr/src/app
+    networks:
+      - abilitylink
+    ports:
+      - "3010:3010"
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm run watch"
+
+  groups:
+    container_name: groups
+    build: ./groups
+    volumes:
+      - ./groups/:/usr/src/app
+    networks:
+      - abilitylink
+    ports:
+      - "3011:3011"
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm run dev"
+
+  login:
+    container_name: login
+    build: ./login
+    volumes:
+      - ./login:/usr/src/app
+    networks:
+      - abilitylink
+    ports:
+      - "3011:3011"
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm run watch"

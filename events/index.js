@@ -12,11 +12,20 @@ app.use(cors());
 app.use(express.json());
 database.initializeDB();
 
+app.get('/groups', cors() , async (req, res, next) => {
+  try {
+    const events = await database.getAllGroups();
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Get the data from the server
 app.get('/events', cors() , async (req, res, next) => {
   try {
     const events = await database.getAllEvents();
-    console.log(events);
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);

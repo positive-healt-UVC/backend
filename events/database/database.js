@@ -37,12 +37,25 @@ function initializeDB() {
           date TEXT,
           startingTime TEXT,
           endingTime TEXT,
-          location TEXT);`
+          location TEXT,
+          groupId INT,
+          FOREIGN KEY (user_id) REFERENCES users(id));`
   );
 
   // Close the database connection
   console.log('Database initialized.');
   db.close();
+}
+
+async function getAllGroups() {
+  try {
+    const res = await fetch("http://gateway:3000/groups/groups/");
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error; // Rethrow the error to propagate it further
+  }
 }
 
 /**
@@ -55,9 +68,9 @@ async function getAllEvents() {
   const db = connectDB();
 
   // Setup the error
-  db.on("error", function(error) {
+  db.on("error", function (error) {
     console.log("Error reading events: ", error);
-  }); 
+  });
 
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
@@ -66,6 +79,9 @@ async function getAllEvents() {
     });
   });
 }
+
+
+// Rest of your code remains the same
 
 /**
  * Get all the events between a provided day and 7 days later.
@@ -147,11 +163,11 @@ function insertEvent(event) {
   db.serialize(() => {
     // Create a template string for the database
     const insertStmt = db.prepare(
-      'INSERT INTO events (name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
     );
 
     // Insert the event into the database
-    insertStmt.run(event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
 
     // Finalize the insertion and inform the app
     insertStmt.finalize();
@@ -228,15 +244,33 @@ async function updateEvent(id, updatedEvent) {
   });
 }
 
+// Fetch appointments for a specific user
+async function getAppointmentsForUser(userId) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM appointments WHERE user_id = ?', [userId], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+      db.close();
+    });
+  });
+}
+
 
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
   'initializeDB': initializeDB,
+  'getAllGroups': getAllGroups,
   'getAllEvents': getAllEvents,
   'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
   'insertEvent': insertEvent,
   'deleteEvent': deleteEvent,
   'updateEvent': updateEvent
+  'getAppointmentsForUser': getAppointmentsForUser
 };
