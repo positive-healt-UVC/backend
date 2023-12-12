@@ -37,12 +37,24 @@ function initializeDB() {
           date TEXT,
           startingTime TEXT,
           endingTime TEXT,
-          location TEXT);`
+          location TEXT,
+          groupId INT);`
   );
 
   // Close the database connection
   console.log('Database initialized.');
   db.close();
+}
+
+async function getAllGroups() {
+  try {
+    const res = await fetch("http://gateway:3000/groups/groups/");
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error; // Rethrow the error to propagate it further
+  }
 }
 
 /**
@@ -55,9 +67,9 @@ async function getAllEvents() {
   const db = connectDB();
 
   // Setup the error
-  db.on("error", function(error) {
+  db.on("error", function (error) {
     console.log("Error reading events: ", error);
-  }); 
+  });
 
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
@@ -67,6 +79,9 @@ async function getAllEvents() {
     });
   });
 }
+
+
+// Rest of your code remains the same
 
 /**
  * Get all the events between a provided day and 7 days later.
@@ -158,12 +173,15 @@ function insertEvent(event) {
   db.close();
 }
 
+
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
   'initializeDB': initializeDB,
+  'getAllGroups': getAllGroups,
   'getAllEvents': getAllEvents,
   'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
-  'insertEvent': insertEvent
+  'insertEvent': insertEvent,
 };
