@@ -25,6 +25,17 @@ app.get('/groups', cors() , async (req, res, next) => {
   }
 });
 
+// Get the data from the server
+app.get('/groups/user/:id', cors() , async (req, res) => {
+  try {
+    const data = await database.getUsersGroups(req.params.id);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching test groups:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/groupMembers', cors() , async (req, res, next) => {
   try {
     const groupMembers = await database.getAllGroupMembers();
@@ -61,7 +72,7 @@ app.post('/groups', cors(), async (req, res) => {
 
 
 // Start the server
-const server = app.listen(process.env.PORT || 3011, () => {
+const server = app.listen(process.env.PORT || 3012, () => {
   console.log(`🍿 Express running → PORT ${server.address().port}`);
 });
 
