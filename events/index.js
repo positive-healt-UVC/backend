@@ -68,6 +68,29 @@ app.post('/events', cors(), async (req, res) => {
   }
 });
 
+// Delete Event
+app.delete('/events/:id', async (req, res) => {
+  try {
+    const data = await database.deleteEvent(req.params.id);
+    res.json(data);
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Update Event
+app.put('/events/:id', async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const updatedEventData = req.body;
+    const result = await database.updateEvent(eventId, updatedEventData);
+    res.json(result);
+  } catch (error) {
+    console.error('Error updating event:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // Start the server
 const server = app.listen(process.env.PORT || 3010, () => {
