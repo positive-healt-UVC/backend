@@ -161,6 +161,75 @@ function insertEvent(event) {
   db.close();
 }
 
+/**
+ * Delete event
+ * @param {*event} id 
+ * @returns 
+ */
+async function deleteEvent(id) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error handler
+  db.on("error", function (error) {
+    console.log("Error deleting event: ", error);
+  });
+
+  // Perform the delete operation
+  return new Promise((resolve, reject) => {
+    db.run(`DELETE FROM events WHERE id=${id}`, function (error) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ message: 'Event deleted successfully' });
+      }
+    });
+
+    // Close the database connection
+    db.close();
+  });
+}
+
+/**
+ * Update a single event in the database.
+ * 
+ * @param {number} id - The id of the event you want to update.
+ * @param {object} updatedEvent - The updated event data.
+ * @returns {Promise<object>} - A promise that resolves to the updated event.
+ */
+async function updateEvent(id, updatedEvent) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) => {
+    const updateStmt = db.prepare(`
+      UPDATE events
+      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?
+      WHERE id = ?
+    `);
+
+    updateStmt.run(
+      updatedEvent.name,
+      updatedEvent.description,
+      updatedEvent.date,
+      updatedEvent.startingTime,
+      updatedEvent.endingTime,
+      updatedEvent.location,
+      id,
+      (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({ message: 'Event updated successfully' });
+        }
+      }
+    );
+
+    updateStmt.finalize();
+    console.log("updated", id )
+  });
+}
+
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
@@ -168,5 +237,7 @@ module.exports = {
   'getAllEvents': getAllEvents,
   'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
-  'insertEvent': insertEvent
+  'insertEvent': insertEvent,
+  'deleteEvent': deleteEvent,
+  'updateEvent': updateEvent
 };
