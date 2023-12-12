@@ -271,6 +271,6 @@ module.exports = {
   'getEvent': getEvent,
   'insertEvent': insertEvent,
   'deleteEvent': deleteEvent,
-  'updateEvent': updateEvent
+  'updateEvent': updateEvent,
   'getAppointmentsForUser': getAppointmentsForUser
 };
