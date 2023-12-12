@@ -15,7 +15,6 @@ database.initializeDB();
 app.get('/groups', cors() , async (req, res, next) => {
   try {
     const events = await database.getAllGroups();
-    console.log(events);
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -27,7 +26,6 @@ app.get('/groups', cors() , async (req, res, next) => {
 app.get('/events', cors() , async (req, res, next) => {
   try {
     const events = await database.getAllEvents();
-    console.log(events);
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);
