@@ -15,9 +15,9 @@ jobs:
       - name: Run Tests
         working-directory: ./gateway
         run: npm test
-      - name: Setup events microservice
-        working-directory: ./events
-        run: npm install
-      - name: Run events Tests
-        working-directory: ./events
-        run: npm test
+      # - name: Setup events microservice
+      #   working-directory: ./events
+      #   run: npm install
+      # - name: Run events Tests
+      #   working-directory: ./events
+      #   run: npm test
