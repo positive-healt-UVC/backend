@@ -36,10 +36,10 @@ app.get('/events', cors() , async (req, res, next) => {
 });
 
 // Get the data between a day and 7 days
-app.get('/events/day/:selectedDay', cors(), async (req, res) => {
+app.get('/events/date/:day', cors(), async (req, res) => {
   try {
-    const selectedDay = req.params.selectedDay;
-    const events = await database.getNextWeekFromDay(selectedDay);
+    const day = req.params.day;
+    const events = await database.getNextWeekFromDay(day);
     res.json(events);
   } catch (error) {
     console.error('Error fetching events:', error);

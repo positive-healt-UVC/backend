@@ -38,7 +38,8 @@ function initializeDB() {
           startingTime TEXT,
           endingTime TEXT,
           location TEXT,
-          groupId INT);`
+          groupId INT,
+          FOREIGN KEY (user_id) REFERENCES users(id));`
   );
 
   // Close the database connection
@@ -74,7 +75,6 @@ async function getAllEvents() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM events', (error, rows) => {
-      console.log(rows);
       resolve(rows);
     });
   });
@@ -91,25 +91,29 @@ async function getAllEvents() {
  * @param day the day the application start searching from.
  * @returns the events present inside the database.
  */
-function getNextWeekFromDay(selectedDay) {
+function getNextWeekFromDay(day) {
+  // connect to the dabatase
   const db = connectDB();
 
+  // setup the error
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
+  // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
-    const startingDayNumber = parseInt(selectedDay);
-    const startingDay = new Date(2023, 0);
-    startingDay.setDate(startingDayNumber);
-    const startingDayFormatted = startingDay.toISOString().split("T")[0];
+    // Get the start day of the week, make sure the week starts at a monday
+    const beginDate = new Date(day);
+    beginDate.setDate(beginDate.getDate() + 1)
+    const beginFormattedDate = beginDate.toISOString().split('T')[0]
 
-    const endingDayNumber = startingDayNumber + 6;
-    const endingDay = new Date(2023, 0);
-    endingDay.setDate(endingDayNumber);
-    const endingDayFormatted = endingDay.toISOString().split("T")[0];
-
-    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [startingDayFormatted, endingDayFormatted], (error, rows) => {
+    // Get the final day of the week
+    const endDate = new Date(beginDate);
+    endDate.setDate(beginDate.getDate() + 6)
+    const endFormattedDate = endDate.toISOString().split('T')[0]
+    
+    // Return the data from the API
+    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [beginFormattedDate, endFormattedDate], (error, rows) => {
       if (error) {
         reject(error);
       } else {
@@ -159,11 +163,11 @@ function insertEvent(event) {
   db.serialize(() => {
     // Create a template string for the database
     const insertStmt = db.prepare(
-      'INSERT INTO events (name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
     );
 
     // Insert the event into the database
-    insertStmt.run(event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
 
     // Finalize the insertion and inform the app
     insertStmt.finalize();
@@ -173,7 +177,21 @@ function insertEvent(event) {
   db.close();
 }
 
+// Fetch appointments for a specific user
+async function getAppointmentsForUser(userId) {
+  const db = connectDB();
 
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM appointments WHERE user_id = ?', [userId], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+      db.close();
+    });
+  });
+}
 
 // Export the different parts of the modules
 module.exports = {
@@ -184,4 +202,5 @@ module.exports = {
   'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
   'insertEvent': insertEvent,
+  'getAppointmentsForUser': getAppointmentsForUser
 };
