@@ -10,14 +10,12 @@ const app = express();
 // Setup the application
 app.use(cors());
 app.use(express.json());
-database.initializeDB();
 database.fillDatabase();
 
 // Get the data from the server
 app.get('/groups', cors() , async (req, res, next) => {
   try {
     const groups = await database.getAllGroups();
-    console.log(groups);
     res.json(groups);
   } catch (error) {
     console.error('Error fetching groups:', error);
@@ -39,7 +37,6 @@ app.get('/groups/user/:id', cors() , async (req, res) => {
 app.get('/groupMembers', cors() , async (req, res, next) => {
   try {
     const groupMembers = await database.getAllGroupMembers();
-    console.log(groupMembers);
     res.json(groupMembers);
   } catch (error) {
     console.error('Error fetching groupMembers:', error);
@@ -73,7 +70,7 @@ app.post('/groups', cors(), async (req, res) => {
 
 // Start the server
 const server = app.listen(process.env.PORT || 3012, () => {
-  console.log(`🍿 Express running → PORT ${server.address().port}`);
+  console.log(`🍿 Groups service running → PORT ${server.address().port}`);
 });
 
 module.exports = router;

@@ -40,7 +40,6 @@ function initializeDB() {
   )`);
 
   // Close the database connection
-  console.log('Database initialized.');
   db.close();
 }
 
@@ -67,11 +66,21 @@ async function getAllUsers() {
   });
 }
 
+/**
+ * Populate the database with initial data.
+ */
 function populateDB() {
   // Connect to the database
   const db = connectDB();
 }
 
+/**
+ * Inserts a user into the database.
+ *
+ * @param {Object} user - The user object to be inserted.
+ * @returns {Promise<Object>} - A promise that resolves with a message indicating the success of the operation.
+ * @returns {string} message - The message indicating the success of the operation.
+ */
 async function insertUser(user) {
   // Connect to the database
   const db = connectDB();
@@ -100,8 +109,6 @@ async function insertUser(user) {
     function (error) {
       if (error) {
         console.error('Error inserting user:', error);
-      } else {
-        console.log('User inserted successfully');
       }
 
       // Close the database connection
@@ -112,7 +119,14 @@ async function insertUser(user) {
   return { message: 'User registered successfully' };
 }
 
-// Add a new function in your database module to handle login
+/**
+ * Logs in a user by checking if their username and password match the ones stored in the database.
+ *
+ * @param {Object} user The user object containing the username and password.
+ *
+ * @returns {Promise<{message: string}|{message: string, userId}>} - A promise that resolves with an object containing a success message and the user ID if the login is successful, or
+ * an object containing an error message if the login is unsuccessful.
+ */
 async function loginUser(user) {
   // Connect to the database
   const db = connectDB();
@@ -139,9 +153,6 @@ async function loginUser(user) {
     return { message: 'Invalid credentials' };
   }
 }
-
-
-
 
 // Export the different parts of the modules
 module.exports = {

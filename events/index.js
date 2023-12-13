@@ -94,7 +94,7 @@ app.put('/events/:id', async (req, res) => {
 
 // Start the server
 const server = app.listen(process.env.PORT || 3010, () => {
-  console.log(`🍿 Express running → PORT ${server.address().port}`);
+  console.log(`🍿 Events service running → PORT ${server.address().port}`);
 });
 
 module.exports = router;

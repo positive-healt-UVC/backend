@@ -8,7 +8,7 @@ networks:
 services:
   gateway:
     container_name: gateway
-    build: ./gateway
+    image: node:20.10.0
     volumes:
       - ./gateway/:/usr/src/app
     networks:
@@ -20,7 +20,7 @@ services:
 
   events:
     container_name: events
-    build: ./events
+    image: node:20.10.0
     volumes:
       - ./events:/usr/src/app
     networks:
@@ -32,7 +32,7 @@ services:
 
   groups:
     container_name: groups
-    build: ./groups
+    image: node:20.10.0
     volumes:
       - ./groups/:/usr/src/app
     networks:
@@ -44,7 +44,7 @@ services:
 
   login:
     container_name: login
-    build: ./login
+    image: node:20.10.0
     volumes:
       - ./login:/usr/src/app
     networks:
