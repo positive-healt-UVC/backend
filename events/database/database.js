@@ -1,35 +1,29 @@
-// Import the SQLite library without messages
 const sqlite3 = require('sqlite3').verbose();
 
 /**
- * Connect to the database.
- * 
- * @returns the database object to use, null on error.
+ * Connects to the database and returns a database instance.
+ *
+ * @returns {Database} The connected database instance.
  */
 function connectDB() {
-  // Try to connect to the database and return the object
   try {
     const db = new sqlite3.Database('./database/events.db');
     return db;
-  }
-
-  // Whenever there is an error opening the database, show it in the console
-  catch (error) {
+  } catch (error) {
     console.error('Error opening database:', err);
   }
 }
 
-/** Initialize the database */
+/**
+ * Initializes the database by creating the 'events' table if it does not already exist.
+ */
 function initializeDB() {
-  // Connect to the database
   const db = connectDB();
 
-  // Setup the error
   db.on("error", function (error) {
     console.log("Error initializing table: ", error);
   });
 
-  // Run the command
   db.run(`CREATE TABLE IF NOT EXISTS events (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT,
@@ -37,64 +31,74 @@ function initializeDB() {
           date TEXT,
           startingTime TEXT,
           endingTime TEXT,
-          location TEXT);`
+          location TEXT,
+          groupId INT,
+          user_id INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users(id)
+       );`
   );
 
-  // Close the database connection
-  console.log('Database initialized.');
   db.close();
 }
 
 /**
- * Get all the events saved into the database.
- * 
- * @returns the events present inside the database.
+ * Retrieves all groups from the server.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved groups data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getAllGroups() {
+  try {
+    const res = await fetch("http://gateway:3000/groups/groups/");
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves all events from the database.
+ *
+ * @returns {Promise} A promise that resolves with an array of event objects.
  */
 async function getAllEvents() {
-  // Connect to the database
   const db = connectDB();
 
-  // Setup the error
-  db.on("error", function(error) {
+  db.on("error", function (error) {
     console.log("Error reading events: ", error);
-  }); 
+  });
 
-  // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM events', (error, rows) => {
-      console.log(rows);
       resolve(rows);
     });
   });
 }
 
 /**
- * Get all the events between a provided day and 7 days later.
- * The date provided is the starting day. 
- * The app looks between this day and 7 days laters for events.
- * 
- * @param day the day the application start searching from.
- * @returns the events present inside the database.
+ * Gets the events for the next week starting from the given day.
+ *
+ * @param {string} day The day to start the next week from. Should be in 'YYYY-MM-DD' format.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of events for the next week or an error.
  */
 function getNextWeekFromDay(day) {
-  // connect to the dabatase
   const db = connectDB();
 
-  // setup the error
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
-  // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     const beginDate = new Date(day);
+    beginDate.setDate(beginDate.getDate() + 1)
     const beginFormattedDate = beginDate.toISOString().split('T')[0]
 
     const endDate = new Date(beginDate);
     endDate.setDate(beginDate.getDate() + 6)
     const endFormattedDate = endDate.toISOString().split('T')[0]
-    
-    // Return the data from the API
+
     db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [beginFormattedDate, endFormattedDate], (error, rows) => {
       if (error) {
         reject(error);
@@ -108,21 +112,18 @@ function getNextWeekFromDay(day) {
 }
 
 /**
- * Get a single event from the database by id.
- * 
- * @param {number} id the id of the event you want to get.
- * @returns the event.
+ * Retrieves an event from the database based on the provided event ID.
+ *
+ * @param {number} id The ID of the event to retrieve.
+ * @returns {Promise<object>} A promise that resolves to the retrieved event object.
  */
 async function getEvent(id) {
-  // Connect to the database
   const db = connectDB();
 
-  // Setup an error for when things for wrong
   db.on("error", function (error) {
     console.log("Error reading event: ", error);
   });
 
-  // Return the data from the API
   return new Promise((resolve, reject) => {
     db.get(`SELECT * FROM events WHERE id=${id}`, (errors, rows) => {
       resolve(rows);
@@ -133,38 +134,121 @@ async function getEvent(id) {
 }
 
 /**
- * Add a single event to the database.
- * 
- * @param {object} event the event you want to add to the database.  
+ * Inserts an event into the database.
+ *
+ * @param {Object} event The event object to be inserted.
  */
 function insertEvent(event) {
-  // Connect to the database
   const db = connectDB();
 
-  // Insert sample data into the "events" table
   db.serialize(() => {
-    // Create a template string for the database
     const insertStmt = db.prepare(
-      'INSERT INTO events (name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?, ?)'
     );
 
-    // Insert the event into the database
-    insertStmt.run(event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
 
-    // Finalize the insertion and inform the app
     insertStmt.finalize();
   });
 
-  // Close the database connection
   db.close();
 }
 
-// Export the different parts of the modules
+/**
+ * Deletes an event with the specified ID from the database.
+ *
+ * @param {number} id The ID of the event to be deleted.
+ * @returns {Promise<object>} A promise that resolves with an object containing the result message of the deletion.
+ *.
+ */
+async function deleteEvent(id) {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error deleting event: ", error);
+  });
+
+  return new Promise((resolve, reject) => {
+    db.run(`DELETE FROM events WHERE id=${id}`, function (error) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ message: 'Event deleted successfully' });
+      }
+    });
+
+    db.close();
+  });
+}
+
+/**
+ * Updates an event in the database with the given id.
+ *
+ * @param {string} id The id of the event to be updated.
+ * @param {Object} updatedEvent The updated event object containing the new values.
+ * @returns {Promise<Object>} A Promise that resolves to a message indicating the success of the operation.
+ */
+async function updateEvent(id, updatedEvent) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) => {
+    const updateStmt = db.prepare(`
+      UPDATE events
+      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?
+      WHERE id = ?
+    `);
+
+    updateStmt.run(
+      updatedEvent.name,
+      updatedEvent.description,
+      updatedEvent.date,
+      updatedEvent.startingTime,
+      updatedEvent.endingTime,
+      updatedEvent.location,
+      id,
+      (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({ message: 'Event updated successfully' });
+        }
+      }
+    );
+
+    updateStmt.finalize();
+  });
+}
+
+/**
+ * Retrieves all appointments for a given user ID from the database.
+ *
+ * @param {number} userId The ID of the user.
+ * @returns {Promise<unknown>} A promise that resolves with an array of appointment objects or rejects with an error.
+ */
+async function getAppointmentsForUser(userId) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM appointments WHERE user_id = ?', [userId], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+      db.close();
+    });
+  });
+}
+
 module.exports = {
   'connectDB': connectDB,
   'initializeDB': initializeDB,
+  'getAllGroups': getAllGroups,
   'getAllEvents': getAllEvents,
   'getNextWeekFromDay': getNextWeekFromDay,
   'getEvent': getEvent,
-  'insertEvent': insertEvent
+  'insertEvent': insertEvent,
+  'deleteEvent': deleteEvent,
+  'updateEvent': updateEvent,
+  'getAppointmentsForUser': getAppointmentsForUser
 };

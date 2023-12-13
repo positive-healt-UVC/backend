@@ -132,3 +132,6 @@ dist
 
 # Databases
 *.db
+
+# IDE Configs
+*.idea/
