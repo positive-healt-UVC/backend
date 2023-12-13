@@ -61,7 +61,7 @@ app.post('/groups', cors(), async (req, res) => {
 
 
 // Start the server
-const server = app.listen(process.env.PORT || 3011, () => {
+const server = app.listen(process.env.PORT || 3012, () => {
   console.log(`🍿 Express running → PORT ${server.address().port}`);
 });
 
