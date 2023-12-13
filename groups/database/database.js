@@ -36,13 +36,13 @@ function initializeDB() {
 function fillDatabase() {
   const db = connectDB();
 
-  const createTable1 = 
-  `CREATE TABLE IF NOT EXISTS groups (
+  const createTable1 =
+    `CREATE TABLE IF NOT EXISTS groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     carer INT NOT NULL  
   );`
-  ;
+    ;
 
   const createTable2 = `
       CREATE TABLE IF NOT EXISTS groupMembers (
@@ -52,29 +52,29 @@ function fillDatabase() {
   `;
 
   db.serialize(() => {
-      db.exec(createTable1, function (err) {
-          if (err) {
-              console.error(err.message);
-          } else {
-              console.log('Table 1 created successfully');
-          }
-      });
+    db.exec(createTable1, function (err) {
+      if (err) {
+        console.error(err.message);
+      } else {
+        console.log('Table 1 created successfully');
+      }
+    });
 
-      db.exec(createTable2, function (err) {
-          if (err) {
-              console.error(err.message);
-          } else {
-              console.log('Table 2 created successfully');
-          }
+    db.exec(createTable2, function (err) {
+      if (err) {
+        console.error(err.message);
+      } else {
+        console.log('Table 2 created successfully');
+      }
 
-          db.close((err) => {
-              if (err) {
-                  console.error(err.message);
-              } else {
-                  console.log('Database connection closed');
-              }
-          });
+      db.close((err) => {
+        if (err) {
+          console.error(err.message);
+        } else {
+          console.log('Database connection closed');
+        }
       });
+    });
   });
 }
 
@@ -88,9 +88,9 @@ async function getAllGroups() {
   const db = connectDB();
 
   // Setup the error
-  db.on("error", function(error) {
+  db.on("error", function (error) {
     console.log("Error reading groups: ", error);
-  }); 
+  });
 
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
@@ -111,9 +111,9 @@ async function getAllGroupMembers() {
   const db = connectDB();
 
   // Setup the error
-  db.on("error", function(error) {
+  db.on("error", function (error) {
     console.log("Error reading groupMembers: ", error);
-  }); 
+  });
 
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
@@ -175,6 +175,25 @@ function insertGroup(group) {
   db.close();
 }
 
+function getUserGroups(userId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things for wrong
+  db.on("error", function (error) {
+    console.log("Error reading user group: ", error);
+  });
+
+  // Return the data from the API
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT * FROM groups, groupMembers WHERE userId=${userId} and groupId=id;`, (errors, rows) => {
+      resolve(rows);
+    });
+
+    db.close();
+  })
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
@@ -183,5 +202,6 @@ module.exports = {
   'getGroup': getGroup,
   'getAllGroupMembers': getAllGroupMembers,
   'insertGroup': insertGroup,
-  'fillDatabase':fillDatabase
+  'fillDatabase': fillDatabase,
+  'getUsersGroups': getUserGroups
 };
