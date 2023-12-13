@@ -19,20 +19,9 @@ function connectDB() {
   }
 }
 
-/** Initialize the database */
-function initializeDB() {
-  // Connect to the database
-  const db = connectDB();
-
-  // Setup the error
-  db.on("error", function (error) {
-    console.log("Error initializing table: ", error);
-  });
-  // Close the database connection
-  console.log('Database initialized.');
-  db.close();
-}
-
+/**
+ * Fills the database with the necessary tables and initial data.
+ */
 function fillDatabase() {
   const db = connectDB();
 
@@ -55,23 +44,17 @@ function fillDatabase() {
     db.exec(createTable1, function (err) {
       if (err) {
         console.error(err.message);
-      } else {
-        console.log('Table 1 created successfully');
       }
     });
 
     db.exec(createTable2, function (err) {
       if (err) {
         console.error(err.message);
-      } else {
-        console.log('Table 2 created successfully');
       }
 
       db.close((err) => {
         if (err) {
           console.error(err.message);
-        } else {
-          console.log('Database connection closed');
         }
       });
     });
@@ -95,7 +78,6 @@ async function getAllGroups() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM groups', (error, rows) => {
-      console.log(rows);
       resolve(rows);
     });
   });
@@ -118,7 +100,6 @@ async function getAllGroupMembers() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM groupMembers', (error, rows) => {
-      console.log(rows);
       resolve(rows);
     });
   });
@@ -175,6 +156,12 @@ function insertGroup(group) {
   db.close();
 }
 
+/**
+ * Fetches the user groups for a given user.
+ *
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<Array<Object>>} - A promise that resolves to an array of user groups.
+ */
 function getUserGroups(userId) {
   // Connect to the database
   const db = connectDB();
@@ -197,7 +184,6 @@ function getUserGroups(userId) {
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
-  'initializeDB': initializeDB,
   'getAllGroups': getAllGroups,
   'getGroup': getGroup,
   'getAllGroupMembers': getAllGroupMembers,

@@ -9,5 +9,5 @@ app.use(express.json());
 app.use('/', routes.router);
 
 app.listen(PORT, () =>{
-  console.log(`Gateway has started on ${PORT}`);
+  console.log(`🍿 Gateway running → PORT ${PORT}`);
 });

@@ -1,5 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 
+/**
+ * Connects to the database and returns a database instance.
+ *
+ * @returns {Database} The connected database instance.
+ */
 function connectDB() {
   try {
     const db = new sqlite3.Database('./database/events.db');
@@ -9,6 +14,9 @@ function connectDB() {
   }
 }
 
+/**
+ * Initializes the database by creating the 'events' table if it does not already exist.
+ */
 function initializeDB() {
   const db = connectDB();
 
@@ -30,10 +38,15 @@ function initializeDB() {
        );`
   );
 
-  console.log('Database initialized.');
   db.close();
 }
 
+/**
+ * Retrieves all groups from the server.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved groups data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
 async function getAllGroups() {
   try {
     const res = await fetch("http://gateway:3000/groups/groups/");
@@ -45,6 +58,11 @@ async function getAllGroups() {
   }
 }
 
+/**
+ * Retrieves all events from the database.
+ *
+ * @returns {Promise} A promise that resolves with an array of event objects.
+ */
 async function getAllEvents() {
   const db = connectDB();
 
@@ -59,6 +77,12 @@ async function getAllEvents() {
   });
 }
 
+/**
+ * Gets the events for the next week starting from the given day.
+ *
+ * @param {string} day The day to start the next week from. Should be in 'YYYY-MM-DD' format.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of events for the next week or an error.
+ */
 function getNextWeekFromDay(day) {
   const db = connectDB();
 
@@ -87,6 +111,12 @@ function getNextWeekFromDay(day) {
   });
 }
 
+/**
+ * Retrieves an event from the database based on the provided event ID.
+ *
+ * @param {number} id The ID of the event to retrieve.
+ * @returns {Promise<object>} A promise that resolves to the retrieved event object.
+ */
 async function getEvent(id) {
   const db = connectDB();
 
@@ -103,6 +133,11 @@ async function getEvent(id) {
   })
 }
 
+/**
+ * Inserts an event into the database.
+ *
+ * @param {Object} event The event object to be inserted.
+ */
 function insertEvent(event) {
   const db = connectDB();
 
@@ -119,6 +154,13 @@ function insertEvent(event) {
   db.close();
 }
 
+/**
+ * Deletes an event with the specified ID from the database.
+ *
+ * @param {number} id The ID of the event to be deleted.
+ * @returns {Promise<object>} A promise that resolves with an object containing the result message of the deletion.
+ *.
+ */
 async function deleteEvent(id) {
   const db = connectDB();
 
@@ -139,6 +181,13 @@ async function deleteEvent(id) {
   });
 }
 
+/**
+ * Updates an event in the database with the given id.
+ *
+ * @param {string} id The id of the event to be updated.
+ * @param {Object} updatedEvent The updated event object containing the new values.
+ * @returns {Promise<Object>} A Promise that resolves to a message indicating the success of the operation.
+ */
 async function updateEvent(id, updatedEvent) {
   const db = connectDB();
 
@@ -170,6 +219,12 @@ async function updateEvent(id, updatedEvent) {
   });
 }
 
+/**
+ * Retrieves all appointments for a given user ID from the database.
+ *
+ * @param {number} userId The ID of the user.
+ * @returns {Promise<unknown>} A promise that resolves with an array of appointment objects or rejects with an error.
+ */
 async function getAppointmentsForUser(userId) {
   const db = connectDB();
 

@@ -72,7 +72,7 @@ app.post('/users/login', cors(), async (req, res) => {
 // Start the server
 const server = app.listen(process.env.PORT || 3011, () => {
   // Tell the user about the state of the server 
-  console.log(`🍿 Express running → PORT ${server.address().port}`);
+  console.log(`🍿 Login service running → PORT ${server.address().port}`);
   
   // Initialize the database on startup
   database.initializeDB();

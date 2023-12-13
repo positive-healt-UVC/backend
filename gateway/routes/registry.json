@@ -6,6 +6,12 @@
       "port": 3010,
       "url": "http://events:3010/"
     },
+    "login": {
+      "apiName": "login",
+      "host": "http://login",
+      "port": 3011,
+      "url": "http://login:3011/"
+    },
     "groups": {
       "apiName": "groups",
       "host": "http://groups",
