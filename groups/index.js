@@ -2,7 +2,6 @@
 const express = require('express');
 const cors = require('cors');
 const database = require("./database/database");
-const console = require("console");
 const router = express.Router();
 
 // Initialize the application
@@ -24,6 +23,19 @@ app.get('/groups', cors() , async (req, res, next) => {
   }
 });
 
+// Get a group with all it's members
+app.get('/groups/with-members/:id', cors(), async (req, res) => {
+  try {
+    const group = await database.getGroup(req.params.id);
+    const groupMembers = await database.getGroupMembers(req.params.id);
+    group.members = await database.getUsers(groupMembers.map((member) => member.userId))
+    res.json(group);
+  } catch (error) {
+    console.error('Error fetching groupMembers:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+})
+
 // Get the data from the server
 app.get('/groups/user/:id', cors() , async (req, res) => {
   try {
@@ -34,19 +46,6 @@ app.get('/groups/user/:id', cors() , async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
-// Get a group with all it's members
-app.get('/groups/with-members/:id', cors(), async (req, res) => {
-  try {
-      const group = await database.getGroup(req.params.id);
-      const groupMembers = await database.getGroupMembers(req.params.id);
-      group.members = await database.getUsers(groupMembers.map((member) => member.userId))
-      res.json(group);
-    } catch (error) {
-      console.error('Error fetching groupMembers:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-})
 
 //test data
 app.get('/groups/:id', async (req, res) => {
@@ -59,7 +58,7 @@ app.get('/groups/:id', async (req, res) => {
   }
 });
 
-//posting data and saving it to the server
+// Posting a new group
 app.post('/groups', cors(), async (req, res) => {
   try {
     const newGroupData = req.body;
@@ -70,6 +69,19 @@ app.post('/groups', cors(), async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// Adding a user to a group
+app.post('/group/:groupId/add-user/:userId', async (req, res) => {
+  try {
+      const groupId = req.params.groupId;
+      const userId = req.params.userId;
+      await database.addUserToGroup(groupId, userId);
+      res.status(200).json({ message: 'User added to group successfully' });
+  } catch (error) {
+      console.error('Error adding user to group:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+})
 
 
 // Start the server

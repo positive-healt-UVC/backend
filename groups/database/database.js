@@ -189,12 +189,35 @@ function getUserGroups(userId) {
   })
 }
 
+function addUserToGroup(groupId, userId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Insert sample data into the "events" table
+  db.serialize(() => {
+    // Create a template string for the database
+    const insertStmt = db.prepare(
+        'INSERT INTO groupMembers (groupId, userId) VALUES (?, ?)'
+    );
+
+    // Insert the event into the database
+    insertStmt.run(groupId, userId);
+
+    // Finalize the insertion and inform the app
+    insertStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
   'getAllGroups': getAllGroups,
   'getGroup': getGroup,
   'getGroupMembers': getGroupMembers,
+  'addUserToGroup': addUserToGroup,
   'getUsers': getUsers,
   'insertGroup': insertGroup,
   'fillDatabase': fillDatabase,
