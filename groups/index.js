@@ -1,7 +1,8 @@
 // Import dependencies
 const express = require('express');
 const cors = require('cors');
-const database = require('./database/database.js');
+const database = require("./database/database");
+const console = require("console");
 const router = express.Router();
 
 // Initialize the application
@@ -34,15 +35,18 @@ app.get('/groups/user/:id', cors() , async (req, res) => {
   }
 });
 
-app.get('/groupMembers', cors() , async (req, res, next) => {
+// Get a group with all it's members
+app.get('/groups/with-members/:id', cors(), async (req, res) => {
   try {
-    const groupMembers = await database.getAllGroupMembers();
-    res.json(groupMembers);
-  } catch (error) {
-    console.error('Error fetching groupMembers:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+      const group = await database.getGroup(req.params.id);
+      const groupMembers = await database.getGroupMembers(req.params.id);
+      group.members = await database.getUsers(groupMembers.map((member) => member.userId))
+      res.json(group);
+    } catch (error) {
+      console.error('Error fetching groupMembers:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
 
 //test data
 app.get('/groups/:id', async (req, res) => {
