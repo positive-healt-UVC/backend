@@ -83,12 +83,7 @@ async function getAllGroups() {
   });
 }
 
-/**
- * Get all the groupMembers saved into the database.
- * 
- * @returns the groupMembers present inside the database.
- */
-async function getAllGroupMembers() {
+async function getGroupMembers(id) {
   // Connect to the database
   const db = connectDB();
 
@@ -99,11 +94,24 @@ async function getAllGroupMembers() {
 
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM groupMembers', (error, rows) => {
+    db.all('SELECT userId FROM groupMembers WHERE groupId = 1;', (error, rows) => {
       resolve(rows);
     });
   });
 }
+
+/**
+ * Retrieves users based on their ids.
+ *
+ * @param {Array<number>} ids An array of user ids.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of user objects that match the given ids.
+ */
+async function getUsers(ids) {
+  let users = await fetch("http://login:3011/users");
+  users = await users.json();
+  return users.filter((user) => ids.includes(user.id));
+}
+
 /**
  * Get a single event from the database by id.
  * 
@@ -186,7 +194,8 @@ module.exports = {
   'connectDB': connectDB,
   'getAllGroups': getAllGroups,
   'getGroup': getGroup,
-  'getAllGroupMembers': getAllGroupMembers,
+  'getGroupMembers': getGroupMembers,
+  'getUsers': getUsers,
   'insertGroup': insertGroup,
   'fillDatabase': fillDatabase,
   'getUsersGroups': getUserGroups
