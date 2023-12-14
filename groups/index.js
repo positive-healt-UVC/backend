@@ -71,6 +71,35 @@ app.post('/groups', cors(), async (req, res) => {
   }
 });
 
+// Delete a group by id
+app.delete('/groups/:id', cors(), async (req, res) => {
+  try {
+    const groupId = req.params.id;
+    
+    // Call the deleteGroup function
+    await database.deleteGroup(groupId);
+
+    res.status(200).json({ message: 'Group deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting group:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Update a group by id
+app.put('/groups/:id', cors(), async (req, res) => {
+  try {
+    const groupId = req.params.id;
+    const updatedGroupData = req.body;
+    
+    await database.updateGroup(groupId, updatedGroupData);
+
+    res.status(200).json({ message: 'Group updated successfully' });
+  } catch (error) {
+    console.error('Error updating group:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // Start the server
 const server = app.listen(process.env.PORT || 3012, () => {

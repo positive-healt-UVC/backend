@@ -189,6 +189,67 @@ function getUserGroups(userId) {
   })
 }
 
+/**
+ * Delete a group from the database by id.
+ * 
+ * @param {number} id - The id of the group you want to delete.
+ */
+function deleteGroup(id) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on("error", function (error) {
+    console.log("Error deleting group: ", error);
+  });
+
+  // Delete the group from the database
+  db.serialize(() => {
+    const deleteStmt = db.prepare('DELETE FROM groups WHERE id = ?');
+    
+    // Execute the deletion
+    deleteStmt.run(id);
+
+    // Finalize the deletion
+    deleteStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+/**
+ * Update a group in the database by id.
+ * 
+ * @param {number} id - The id of the group you want to update.
+ * @param {object} updatedGroup - The updated group object.
+ */
+function updateGroup(id, updatedGroup) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on("error", function (error) {
+    console.log("Error updating group: ", error);
+  });
+
+  // Update the group in the database
+  db.serialize(() => {
+    const updateStmt = db.prepare(
+      'UPDATE groups SET carer = ?, name = ? WHERE id = ?'
+    );
+
+    // Execute the update
+    updateStmt.run(updatedGroup.carer, updatedGroup.name, id);
+
+    // Finalize the update
+    updateStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
@@ -198,5 +259,8 @@ module.exports = {
   'getUsers': getUsers,
   'insertGroup': insertGroup,
   'fillDatabase': fillDatabase,
-  'getUsersGroups': getUserGroups
+  'getUsersGroups': getUserGroups,
+  'deleteGroup': deleteGroup,
+  'updateGroup': updateGroup
+
 };
