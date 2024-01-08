@@ -20,17 +20,15 @@ database.initializeDatabase();
  * ROUTES *
  **********/
 
-app.get('/handicaps', cors(), async(_, response) => {
+app.get('/handicaps', cors(), async(request, response) => {
   const data = await performGetRequest(database.getHandicaps, response);
+  setImagePaths(data, request);
   response.json(data);
 });
 
 app.get('/handicaps/:id', cors(), async(request, response) => {
   const data = await performGetRequest(() => database.getHandicap(request.params.id), response);
-  data.map(handicap => {
-    handicap.imagePath = `http://${request.headers.host}/images/${handicap.imagePath}`;
-  });
-  
+  setImagePaths(data, request);
   response.json(data);
 });
 
@@ -60,3 +58,9 @@ async function performGetRequest(callback, response) {
     response.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+function setImagePaths(handicaps, request) {
+  handicaps.map(handicap => {
+    handicap.imagePath = `http://${request.headers.host}/images/${handicap.imagePath}`;
+  });
+}
