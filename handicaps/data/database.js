@@ -60,10 +60,29 @@ function getHandicaps() {
     database.all('SELECT * FROM handicaps', (_, rows) => {
       resolve(rows);
     })
-  })
+  });
+}
+
+/**
+ * Get a single handicap together with its images.
+ * This is a union between the handicaps and the handicapImages table.
+ * The handicap retrieved is of the given id.
+ * @param {number} id the id of the handicap to retrieve
+ * @returns {Promise} the data from the database. 
+ */
+function getHandicap(id) {
+  const database = connectDatabase();
+  setError(database, 'Error getting handicap');
+
+  return new Promise((resolve) => {
+    database.all(`SELECT * FROM handicaps WHERE id = ${id}`, (_, rows) => {
+      resolve(rows);
+    })
+  });
 }
 
 module.exports = {
   'initializeDatabase': initializeDatabase,
-  'getHandicaps': getHandicaps
+  'getHandicaps': getHandicaps,
+  'getHandicap': getHandicap
 };

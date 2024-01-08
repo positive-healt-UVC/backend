@@ -23,7 +23,6 @@
       "host": "http://handicaps",
       "port": 3015,
       "url": "http://handicaps:3015/"
-    },
     }
   }
 }

@@ -3,22 +3,31 @@ const express = require('express');
 const cors = require('cors');
 const database = require('./data/database.js');
 
-// Initialize the application
-const app = express();
 
-// Setup the application
+/**************
+ * INITIALIZE *
+ **************/
+const app = express();
 app.use(cors());
 app.use(express.json());
-
-// Initialize the database
 database.initializeDatabase();
 
-// Create routes
+
+/**********
+ * ROUTES *
+ **********/
 app.get('/handicaps', cors(), async(_, response) => {
-  performGetRequest(database.getHandicaps, response);
+  performGetRequest(database.getHandicaps(), response);
 });
 
-// Start the server
+app.get('/handicaps/:id', cors(), async(request, response) => {
+  performGetRequest(() => database.getHandicap(request.params.id), response);
+});
+
+
+/**********
+ * SERVER *
+ **********/
 const server = app.listen(process.env.PORT || 3015, () => {
   console.log(`🍿 Handicap service running → PORT ${server.address().port}`);
 });
