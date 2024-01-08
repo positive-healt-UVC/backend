@@ -14,7 +14,7 @@ app.use(express.json());
 database.initializeDatabase();
 
 // Create routes
-app.get('/', cors(), async(_, response) => {
+app.get('/handicaps', cors(), async(_, response) => {
   performGetRequest(database.getHandicaps, response);
 });
 
@@ -23,7 +23,11 @@ const server = app.listen(process.env.PORT || 3015, () => {
   console.log(`🍿 Handicap service running → PORT ${server.address().port}`);
 });
 
-
+/**
+ * Handle a get request.
+ * @param {*} callback the function to call that gets the data from the database. 
+ * @param {*} response the response object from the original request.
+ */
 async function performGetRequest(callback, response) {
   try {
     const data = await callback();
