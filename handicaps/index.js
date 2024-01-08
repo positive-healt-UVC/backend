@@ -59,6 +59,12 @@ async function performGetRequest(callback, response) {
   }
 };
 
+/**
+ * Set the image path for each handicap.
+ * This function enables the user to request the correct image.
+ * @param {Array} handicaps the list of handicaps to set the image paths for. 
+ * @param {} request the request object from the original request.
+ */
 function setImagePaths(handicaps, request) {
   handicaps.map(handicap => {
     handicap.imagePath = `http://${request.headers.host}/images/${handicap.imagePath}`;
