@@ -12,12 +12,12 @@ jobs:
       - name: Setup gateway microservice
         working-directory: ./gateway
         run: npm install
-      - name: Run Tests
+      - name: Run tests
         working-directory: ./gateway
         run: npm test
-#      - name: Setup events microservice
-#        working-directory: ./events
-#        run: npm install
-#      - name: Run events Tests
-#        working-directory: ./events
-#        run: npm test
+     - name: Setup handicaps microservice
+       working-directory: ./handicaps
+       run: npm install
+     - name: Run handicaps tests
+       working-directory: ./handicaps
+       run: npm test
