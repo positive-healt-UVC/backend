@@ -15,9 +15,9 @@ jobs:
       - name: Run tests
         working-directory: ./gateway
         run: npm test
-     - name: Setup handicaps microservice
-       working-directory: ./handicaps
-       run: npm install
-     - name: Run handicaps tests
-       working-directory: ./handicaps
-       run: npm test
+      - name: Setup handicaps microservice
+        working-directory: ./handicaps
+        run: npm install
+      - name: Run handicaps tests
+        working-directory: ./handicaps
+        run: npm test
