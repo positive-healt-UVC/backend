@@ -11,11 +11,9 @@ function connectDB() {
   try {
     const db = new sqlite3.Database('./database/users.db');
     return db;
-  } 
-  
-  // Whenever there is an error opening the database, show it in the console
-  catch (error) {
+  } catch (error) {
     console.error('Error opening database:', error);
+    return null;
   }
 }
 
@@ -51,7 +49,6 @@ function initializeDB() {
 async function getAllUsers() {
   // Connect to the database
   const db = connectDB();
-  const results = []
 
   // Setup the error
   db.on("error", function(error) {
@@ -61,8 +58,38 @@ async function getAllUsers() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM users', (error, rows) => {
-      resolve(rows);
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
     });
+
+    // Don't forget to close the database connection when done
+    db.close();
+  });
+}
+
+async function getUserDataPerUser(id) {
+  const db = connectDB();
+
+  db.on("error", function(error) {
+    console.log("Error reading users: ", error);
+  });
+
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM users WHERE id = ?`;
+
+    db.all(query, [id], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+    });
+
+    // Don't forget to close the database connection when done
+    db.close();
   });
 }
 
@@ -72,6 +99,11 @@ async function getAllUsers() {
 function populateDB() {
   // Connect to the database
   const db = connectDB();
+
+  // Your populate logic here
+
+  // Close the database connection
+  db.close();
 }
 
 /**
@@ -154,12 +186,13 @@ async function loginUser(user) {
   }
 }
 
-// Export the different parts of the modules
+// Export the different parts of the module
 module.exports = {
-  'connectDB': connectDB,
-  'initializeDB': initializeDB,
-  'populateDB': populateDB,
-  'getAllUsers': getAllUsers,
-  'insertUser': insertUser,
-  'loginUser': loginUser,
+  connectDB,
+  initializeDB,
+  populateDB,
+  getAllUsers,
+  getUserDataPerUser,
+  insertUser,
+  loginUser,
 };
