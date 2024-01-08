@@ -47,6 +47,23 @@ function initializeDatabase() {
   runSqlFile('./database/create_tables.sql');
 }
 
+/**
+ * Get a list of handicaps from the database.
+ * This includes all the data from the handicaps table.
+ * @returns {Promise} the data from the database.
+ */
+function getHandicaps() {
+  const database = connectDatabase();
+  setError(database, 'Error getting all handicaps');
+
+  return new Promise((resolve) => {
+    database.all('SELECT * FROM handicaps', (_, rows) => {
+      resolve(rows);
+    })
+  })
+}
+
 module.exports = {
-  'initializeDatabase': initializeDatabase
+  'initializeDatabase': initializeDatabase,
+  'getHandicaps': getHandicaps
 };
