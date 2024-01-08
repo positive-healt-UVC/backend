@@ -1,6 +1,7 @@
 // Import dependencies
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const database = require('./data/database.js');
 
 
@@ -11,6 +12,7 @@ const database = require('./data/database.js');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 database.initializeDatabase();
 
 
@@ -19,11 +21,21 @@ database.initializeDatabase();
  **********/
 
 app.get('/handicaps', cors(), async(_, response) => {
-  performGetRequest(database.getHandicaps(), response);
+  const data = await performGetRequest(database.getHandicaps, response);
+  response.json(data);
 });
 
 app.get('/handicaps/:id', cors(), async(request, response) => {
-  performGetRequest(() => database.getHandicap(request.params.id), response);
+  const data = await performGetRequest(() => database.getHandicap(request.params.id), response);
+  data.map(handicap => {
+    handicap.imagePath = `http://${request.headers.host}/images/${handicap.imagePath}`;
+  });
+  
+  response.json(data);
+});
+
+app.get('/images/:image', cors(), async(request, response) => {
+  response.sendFile(path.join(__dirname, 'public', 'images', request.params.image));
 });
 
 
@@ -42,8 +54,7 @@ const server = app.listen(process.env.PORT || 3015, () => {
  */
 async function performGetRequest(callback, response) {
   try {
-    const data = await callback();
-    response.json(data);
+    return await callback();
   } catch (error) {
     console.error('Error fetching:', error);
     response.status(500).json({ error: 'Internal Server Error' });
