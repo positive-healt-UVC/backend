@@ -7,6 +7,7 @@ const database = require('./data/database.js');
 /**************
  * INITIALIZE *
  **************/
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -16,6 +17,7 @@ database.initializeDatabase();
 /**********
  * ROUTES *
  **********/
+
 app.get('/handicaps', cors(), async(_, response) => {
   performGetRequest(database.getHandicaps(), response);
 });
@@ -28,6 +30,7 @@ app.get('/handicaps/:id', cors(), async(request, response) => {
 /**********
  * SERVER *
  **********/
+
 const server = app.listen(process.env.PORT || 3015, () => {
   console.log(`🍿 Handicap service running → PORT ${server.address().port}`);
 });

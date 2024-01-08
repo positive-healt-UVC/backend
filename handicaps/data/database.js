@@ -42,9 +42,15 @@ function runSqlFile(filename) {
  * Initializes the database.
  * The function makes sure that the database file exists,
  * including the required tables for operation.
+ * If there are no items in the database,
+ * the basic data is inserted.
  */
-function initializeDatabase() {
+async function initializeDatabase() {
   runSqlFile('./database/create_tables.sql');
+
+  if (!(await hasHandicaps())) {
+    runSqlFile('./database/fill_tables.sql');
+  }
 }
 
 /**
@@ -77,6 +83,21 @@ function getHandicap(id) {
   return new Promise((resolve) => {
     database.all(`SELECT * FROM handicaps WHERE id = ${id}`, (_, rows) => {
       resolve(rows);
+    })
+  });
+}
+
+/**
+ * Check whether there are handicaps present in the database.
+ * @returns {Promise} true if there are handicaps present, false otherwise.
+ */
+function hasHandicaps() {
+  const database = connectDatabase();
+  setError(database, 'Error checking if handicaps exist');
+
+  return new Promise((resolve) => {
+    database.all('SELECT * FROM handicaps', (_, rows) => {
+      resolve(rows !== undefined && rows.length > 0);
     })
   });
 }
