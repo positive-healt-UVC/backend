@@ -17,6 +17,13 @@
       "host": "http://groups",
       "port": 3012,
       "url": "http://groups:3012/"
+    },
+    "handicaps": {
+      "apiName": "handicaps",
+      "host": "http://handicaps",
+      "port": 3015,
+      "url": "http://handicaps:3015/"
+    },
     }
   }
 }
