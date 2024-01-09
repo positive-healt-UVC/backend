@@ -67,6 +67,6 @@ async function performGetRequest(callback, response) {
  */
 function setImagePaths(handicaps, request) {
   handicaps.map(handicap => {
-    handicap.imagePath = `http://${request.headers.host}/images/${handicap.imagePath}`;
+    handicap.imagePath = `http://${request.headers.host}/handicaps/images/${handicap.imagePath}`;
   });
 }
