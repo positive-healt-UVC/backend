@@ -33,14 +33,21 @@ app.get('/users', cors(), async (req, res, next) => { // Change to "/users"
 });
 
 // Test data endpoint
-app.get('/users/test', async (req, res) => { // Change to "/users/test"
+app.get('/users/:id', async (req, res) => {
   try {
-    const testData = [
-      // Your test data
-    ];
-    res.json(testData);
+    const userId = req.params.id;
+    const userData = await database.getUserDataPerUser(userId);
+
+    // Check if userData is not empty (user found)
+    if (userData && userData.length > 0) {
+      // Send the user data in the response
+      res.status(200).json({ user: userData[0] });
+    } else {
+      // Handle case where user is not found
+      res.status(404).json({ error: 'User not found' });
+    }
   } catch (error) {
-    console.error('Error fetching test data:', error);
+    console.error('Error fetching user data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -65,6 +72,28 @@ app.post('/users/login', cors(), async (req, res) => {
     res.json(loginResult);
   } catch (error) {
     console.error('Error handling login request:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Update user data by ID
+app.put('/users/:id', cors(), async (req, res) => {
+  try {
+    const updatedUserData = req.body;
+    const userId = req.params.id;
+
+    const result = await database.updateUser({
+      id: userId,
+      ...updatedUserData,
+    });
+
+    if (result.message === 'User updated successfully') {
+      res.status(200).json({ message: 'User data successfully updated' });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error handling put request for user data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

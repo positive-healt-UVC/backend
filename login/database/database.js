@@ -11,11 +11,9 @@ function connectDB() {
   try {
     const db = new sqlite3.Database('./database/users.db');
     return db;
-  } 
-  
-  // Whenever there is an error opening the database, show it in the console
-  catch (error) {
+  } catch (error) {
     console.error('Error opening database:', error);
+    return null;
   }
 }
 
@@ -51,7 +49,6 @@ function initializeDB() {
 async function getAllUsers() {
   // Connect to the database
   const db = connectDB();
-  const results = []
 
   // Setup the error
   db.on("error", function(error) {
@@ -61,8 +58,38 @@ async function getAllUsers() {
   // Get all the rows and return them to the application
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM users', (error, rows) => {
-      resolve(rows);
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
     });
+
+    // Don't forget to close the database connection when done
+    db.close();
+  });
+}
+
+async function getUserDataPerUser(id) {
+  const db = connectDB();
+
+  db.on("error", function(error) {
+    console.log("Error reading users: ", error);
+  });
+
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM users WHERE id = ?`;
+
+    db.all(query, [id], (error, rows) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+    });
+
+    // Don't forget to close the database connection when done
+    db.close();
   });
 }
 
@@ -72,6 +99,11 @@ async function getAllUsers() {
 function populateDB() {
   // Connect to the database
   const db = connectDB();
+
+  // Your populate logic here
+
+  // Close the database connection
+  db.close();
 }
 
 /**
@@ -154,12 +186,52 @@ async function loginUser(user) {
   }
 }
 
-// Export the different parts of the modules
+// Update user data by ID in the updateUser function
+async function updateUser(user) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Check if the user already exists
+  const existingUser = await new Promise((resolve, reject) => {
+    db.get('SELECT * FROM users WHERE id = ?', [user.id], (error, row) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+
+  if (existingUser) {
+    // User exists, update specific fields in the database
+    db.run('UPDATE users SET name = ?, age = ?, handicap = ?, phoneNum = ? WHERE id = ?',
+      [user.name, user.age || null, user.handicap || null, user.phoneNum, user.id],
+
+      // Callback function to handle errors
+      function (error) {
+        if (error) {
+          console.error('Error updating user:', error);
+        }
+
+        // Close the database connection
+        db.close();
+      }
+    );
+
+    return { message: 'User updated successfully' };
+  } else {
+    // User does not exist, return an error message
+    return { message: 'User not found. Unable to update.' };
+  }
+}
+// Export the different parts of the module
 module.exports = {
-  'connectDB': connectDB,
-  'initializeDB': initializeDB,
-  'populateDB': populateDB,
-  'getAllUsers': getAllUsers,
-  'insertUser': insertUser,
-  'loginUser': loginUser,
+  connectDB,
+  initializeDB,
+  populateDB,
+  getAllUsers,
+  getUserDataPerUser,
+  insertUser,
+  loginUser,
+  updateUser,
 };
