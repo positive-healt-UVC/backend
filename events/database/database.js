@@ -34,8 +34,9 @@ function initializeDB() {
           location TEXT,
           groupId INT,
           user_id INTEGER,
-          FOREIGN KEY (user_id) REFERENCES users(id)
-       );`
+          FOREIGN KEY (user_id) REFERENCES users(id),
+          FOREIGN KEY (groupId) REFERENCES groups(id)
+        );`
   );
 
   db.close();
@@ -143,10 +144,10 @@ function insertEvent(event) {
 
   db.serialize(() => {
     const insertStmt = db.prepare(
-      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location, groupId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     );
 
-    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location, event.groupId);
 
     insertStmt.finalize();
   });
@@ -194,7 +195,7 @@ async function updateEvent(id, updatedEvent) {
   return new Promise((resolve, reject) => {
     const updateStmt = db.prepare(`
       UPDATE events
-      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?
+      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?, groupId = ?
       WHERE id = ?
     `);
 
@@ -205,6 +206,7 @@ async function updateEvent(id, updatedEvent) {
       updatedEvent.startingTime,
       updatedEvent.endingTime,
       updatedEvent.location,
+      updatedEvent.groupId,
       id,
       (error) => {
         if (error) {
