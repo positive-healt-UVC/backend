@@ -76,6 +76,28 @@ app.post('/users/login', cors(), async (req, res) => {
   }
 });
 
+// Update user data by ID
+app.put('/users/:id', cors(), async (req, res) => {
+  try {
+    const updatedUserData = req.body;
+    const userId = req.params.id;
+
+    const result = await database.updateUser({
+      id: userId,
+      ...updatedUserData,
+    });
+
+    if (result.message === 'User updated successfully') {
+      res.status(200).json({ message: 'User data successfully updated' });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error handling put request for user data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Start the server
 const server = app.listen(process.env.PORT || 3011, () => {
   // Tell the user about the state of the server 

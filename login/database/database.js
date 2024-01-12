@@ -186,6 +186,44 @@ async function loginUser(user) {
   }
 }
 
+// Update user data by ID in the updateUser function
+async function updateUser(user) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Check if the user already exists
+  const existingUser = await new Promise((resolve, reject) => {
+    db.get('SELECT * FROM users WHERE id = ?', [user.id], (error, row) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+
+  if (existingUser) {
+    // User exists, update specific fields in the database
+    db.run('UPDATE users SET name = ?, age = ?, handicap = ?, phoneNum = ? WHERE id = ?',
+      [user.name, user.age || null, user.handicap || null, user.phoneNum, user.id],
+
+      // Callback function to handle errors
+      function (error) {
+        if (error) {
+          console.error('Error updating user:', error);
+        }
+
+        // Close the database connection
+        db.close();
+      }
+    );
+
+    return { message: 'User updated successfully' };
+  } else {
+    // User does not exist, return an error message
+    return { message: 'User not found. Unable to update.' };
+  }
+}
 // Export the different parts of the module
 module.exports = {
   connectDB,
@@ -195,4 +233,5 @@ module.exports = {
   getUserDataPerUser,
   insertUser,
   loginUser,
+  updateUser,
 };
