@@ -104,6 +104,10 @@ async function getAllEvents() {
 async function getNextWeekFromDay(day) {
   const db = connectDB();
 
+  db.on("error", function (error) {
+    console.log("Error reading events: ", error);
+  });
+
   try {
     // Fetch all groups for the user
     const currentLoggedInUser = await getCurrentLoggedInUser()
@@ -153,6 +157,12 @@ async function getNextWeekFromDay(day) {
  * @throws {Error} If there is an error during the fetch operation.
  */
 async function getCurrentLoggedInUser() {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error reading user: ", error);
+  });
+
   try {
     const res = await fetch(`http://gateway:3000/login/users/currentLoggedInUser`);
     const values = await res.json();
