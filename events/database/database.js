@@ -66,6 +66,12 @@ async function getAllGroups() {
  * @throws {Error} If there is an error during the fetch operation.
  */
 async function getAllUserGroups(userId) {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error reading groups: ", error);
+  });
+
   try {
     const res = await fetch(`http://gateway:3000/groups/groups/user/${userId}`);
     const values = await res.json();
