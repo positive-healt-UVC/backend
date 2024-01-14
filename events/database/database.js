@@ -106,7 +106,8 @@ async function getNextWeekFromDay(day) {
 
   try {
     // Fetch all groups for the user
-    const userGroups = await getAllUserGroups(1);
+    const currentLoggedInUser = await getCurrentLoggedInUser()
+    const userGroups = await getAllUserGroups(currentLoggedInUser);
 
     const eventsPromises = userGroups.map(async (group) => {
       const beginDate = new Date(day);
@@ -135,17 +136,33 @@ async function getNextWeekFromDay(day) {
       return events;
     });
 
-    // Wait for all promises to resolve
     const allEvents = await Promise.all(eventsPromises);
 
-    // Flatten the array of arrays into a single array of events
-    const flattenedEvents = allEvents.reduce((acc, events) => acc.concat(events), []);
-
-    return flattenedEvents;
+    // Combines the array of arrays into 1 single array
+    const AllEvents = allEvents.reduce((acc, events) => acc.concat(events), []);
+    return AllEvents;
   } finally {
     db.close();
   }
 }
+
+/**
+ * Retrieves current logged in user.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved user data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getCurrentLoggedInUser() {
+  try {
+    const res = await fetch(`http://gateway:3000/login/users/currentLoggedInUser`);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error;
+  }
+}
+
 /**
  * Retrieves an event from the database based on the provided event ID.
  *

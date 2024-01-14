@@ -45,6 +45,17 @@ app.get('/users/test', async (req, res) => { // Change to "/users/test"
   }
 });
 
+// Gets current logged in user
+app.get('/users/currentLoggedInUser', cors(), async (req, res, next) => {
+  try {
+    const user = await database.currentLoggedInUser()
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetch user data', error);
+    res.status(500).json({ error: 'Internal Server Error'})
+  }
+});
+
 // Register a new user
 app.post('/users', cors(), async (req, res) => {
   try {

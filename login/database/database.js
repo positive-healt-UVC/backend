@@ -1,5 +1,6 @@
 // Import the SQLite library without messages
 const sqlite3 = require('sqlite3').verbose();
+let currentUser = null;
 
 /**
  * Connect to the database.
@@ -146,12 +147,19 @@ async function loginUser(user) {
   db.close();
 
   if (existingUser) {
+    currentUser = existingUser.id;
+
     // User exists, return success response with user ID
     return { message: 'User logged in successfully', userId: existingUser.id };
   } else {
     // User does not exist or incorrect password, return error response
     return { message: 'Invalid credentials' };
   }
+}
+
+// gets current user that's logged in
+function currentLoggedInUser() {
+  return currentUser;
 }
 
 // Export the different parts of the modules
@@ -162,4 +170,5 @@ module.exports = {
   'getAllUsers': getAllUsers,
   'insertUser': insertUser,
   'loginUser': loginUser,
+  'currentLoggedInUser': currentLoggedInUser
 };
