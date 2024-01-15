@@ -4,6 +4,7 @@ const cors = require('cors');
 const database = require("./database/database");
 const console = require("console");
 const router = express.Router();
+const membersDatabase = require('./database/members');
 
 // Initialize the application
 const app = express();
@@ -12,6 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 database.fillDatabase();
+membersDatabase.createMembersTable();
 
 // Get the data from the server
 app.get('/groups', cors() , async (req, res, next) => {
@@ -97,6 +99,51 @@ app.put('/groups/:id', cors(), async (req, res) => {
     res.status(200).json({ message: 'Group updated successfully' });
   } catch (error) {
     console.error('Error updating group:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get members of a group
+app.get('/groups/:groupId/members', cors(), async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+
+    const groupMembers = await database.getGroupMembers(groupId);
+    const memberIds = groupMembers.map(member => member.userId);
+
+    // Fetch user details for each member
+    const members = await database.getUsers(memberIds);
+
+    // Send a more structured response
+    res.status(200).json({
+      groupId: groupId,
+      members: members
+    });
+  } catch (error) {
+    console.error('Error fetching group members:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get all members
+app.get('/members', cors(), async (req, res) => {
+  try {
+    const members = await membersDatabase.getAllMembers();
+    res.json(members);
+  } catch (error) {
+    console.error('Error fetching members:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get members by groupId
+app.get('/members/group/:groupId', cors(), async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const members = await membersDatabase.getMembersByGroupId(groupId);
+    res.json(members);
+  } catch (error) {
+    console.error('Error fetching members by groupId:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
