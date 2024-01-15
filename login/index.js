@@ -32,6 +32,17 @@ app.get('/users', cors(), async (req, res, next) => { // Change to "/users"
   }
 });
 
+// Gets current logged in user
+app.get('/users/currentLoggedInUser', cors(), (req, res, next) => {
+  try {
+    const user = database.currentLoggedInUser()
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetch user data', error);
+    res.status(500).json({ error: 'Internal Server Error'})
+  }
+});
+
 // Test data endpoint
 app.get('/users/:id', async (req, res) => {
   try {
@@ -49,17 +60,6 @@ app.get('/users/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching user data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Gets current logged in user
-app.get('/users/currentLoggedInUser', cors(), async (req, res, next) => {
-  try {
-    const user = await database.currentLoggedInUser()
-    res.json(user);
-  } catch (error) {
-    console.error('Error fetch user data', error);
-    res.status(500).json({ error: 'Internal Server Error'})
   }
 });
 
