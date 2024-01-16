@@ -16,13 +16,10 @@ function createMembersTable() {
     CREATE TABLE IF NOT EXISTS allmembers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      age INT,
       groupId INTEGER,
       userId INTEGER,
       handicapId INTEGER,
-      FOREIGN KEY(groupId) REFERENCES groups(id),
-      FOREIGN KEY(userId) REFERENCES users(id),
-      FOREIGN KEY(handicapId) REFERENCES handicaps(id)
+      FOREIGN KEY(groupId) REFERENCES groups(id)
     );
   `;
 
@@ -84,9 +81,9 @@ function updateMember(id, updatedMember) {
 
   db.serialize(() => {
     const updateStmt = db.prepare(
-      'UPDATE allmembers SET name = ?, groupId = ?, userId = ? WHERE id = ?'
+      'UPDATE allmembers SET name = ?, groupId = ?, handicapId = ? WHERE id = ?'
     );
-    updateStmt.run(updatedMember.name, updatedMember.groupId, updatedMember.userId, id);
+    updateStmt.run(updatedMember.name, updatedMember.groupId, updatedMember.handicapId, id);
 
     updateStmt.finalize();
   });
@@ -130,16 +127,24 @@ async function addMember(newMember) {
     console.log("Error adding member: ", error);
   });
 
-  db.serialize(() => {
-    const addStmt = db.prepare(
-      'INSERT INTO allmembers (name, handicapId, groupId,) VALUES (?, ?, ?)'
-    );
-    addStmt.run(newMember.name, newMember.age, newMember.groupId, newMember.userId);
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      const addStmt = db.prepare(
+        'INSERT INTO allmembers (name, groupId, userId, handicapId) VALUES (?, ?, ?, ?)'
+      );
 
-    addStmt.finalize();
+      addStmt.run(newMember.name, newMember.groupId, newMember.userId, newMember.handicapId, function (err) {
+        if (err) {
+          console.error("Error adding member:", err);
+          reject(err);
+        } else {
+          resolve({ id: this.lastID });
+        }
+
+        addStmt.finalize();
+      });
+    });
   });
-
-  db.close();
 }
 
 module.exports = {
@@ -147,6 +152,6 @@ module.exports = {
   getAllMembers,
   getMembersByGroupId,
   updateMember,
-  deleteMember
+  deleteMember,
+  addMember
 };
-
