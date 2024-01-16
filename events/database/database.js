@@ -60,6 +60,29 @@ async function getAllGroups() {
 }
 
 /**
+ * Retrieves all groups from the server.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved groups data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getAllUserGroups(userId) {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error reading groups: ", error);
+  });
+
+  try {
+    const res = await fetch(`http://gateway:3000/groups/groups/user/${userId}`);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error;
+  }
+}
+
+/**
  * Retrieves all events from the database.
  *
  * @returns {Promise} A promise that resolves with an array of event objects.
@@ -84,32 +107,76 @@ async function getAllEvents() {
  * @param {string} day The day to start the next week from. Should be in 'YYYY-MM-DD' format.
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of events for the next week or an error.
  */
-function getNextWeekFromDay(day) {
+async function getNextWeekFromDay(day) {
   const db = connectDB();
 
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
-  return new Promise((resolve, reject) => {
-    const beginDate = new Date(day);
-    beginDate.setDate(beginDate.getDate() + 1)
-    const beginFormattedDate = beginDate.toISOString().split('T')[0]
+  try {
+    // Fetch all groups for the user
+    const currentLoggedInUser = await getCurrentLoggedInUser()
+    const userGroups = await getAllUserGroups(currentLoggedInUser);
 
-    const endDate = new Date(beginDate);
-    endDate.setDate(beginDate.getDate() + 6)
-    const endFormattedDate = endDate.toISOString().split('T')[0]
+    const eventsPromises = userGroups.map(async (group) => {
+      const beginDate = new Date(day);
+      beginDate.setDate(beginDate.getDate() + 1);
+      const beginFormattedDate = beginDate.toISOString().split('T')[0];
 
-    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [beginFormattedDate, endFormattedDate], (error, rows) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(rows);
-      }
+      const endDate = new Date(beginDate);
+      endDate.setDate(beginDate.getDate() + 6);
+      const endFormattedDate = endDate.toISOString().split('T')[0];
 
-      db.close();
+      // Fetch events for each group within the specified date range
+      const events = await new Promise((resolve, reject) => {
+        db.all(
+          'SELECT * FROM events WHERE date BETWEEN ? AND ? AND groupId = ? ORDER BY date',
+          [beginFormattedDate, endFormattedDate, group.groupId],
+          (error, rows) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(rows);
+            }
+          }
+        );
+      });
+
+      return events;
     });
+
+    const allEvents = await Promise.all(eventsPromises);
+
+    // Combines the array of arrays into 1 single array
+    const AllEvents = allEvents.reduce((acc, events) => acc.concat(events), []);
+    return AllEvents;
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * Retrieves current logged in user.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved user data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getCurrentLoggedInUser() {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error reading user: ", error);
   });
+
+  try {
+    const res = await fetch(`http://gateway:3000/login/users/currentLoggedInUser`);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error;
+  }
 }
 
 /**
