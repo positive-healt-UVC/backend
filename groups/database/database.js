@@ -83,23 +83,6 @@ async function getAllGroups() {
   });
 }
 
-async function getGroupMembers(id) {
-  // Connect to the database
-  const db = connectDB();
-
-  // Setup the error
-  db.on("error", function (error) {
-    console.log("Error reading groupMembers: ", error);
-  });
-
-  // Get all the rows and return them to the application
-  return new Promise((resolve, reject) => {
-    db.all('SELECT userId FROM groupMembers WHERE groupId = 1;', (error, rows) => {
-      resolve(rows);
-    });
-  });
-}
-
 /**
  * Retrieves users based on their ids.
  *
@@ -250,6 +233,23 @@ function updateGroup(id, updatedGroup) {
   db.close();
 }
 
+async function getGroupMembers(groupId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on("error", function (error) {
+    console.log("Error reading groupMembers: ", error);
+  });
+
+  // Get all the rows for the specified groupId and return them to the application
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT userId FROM groupMembers WHERE groupId = ${groupId};`, (error, rows) => {
+      resolve(rows);
+    });
+  });
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
@@ -261,6 +261,5 @@ module.exports = {
   'fillDatabase': fillDatabase,
   'getUsersGroups': getUserGroups,
   'deleteGroup': deleteGroup,
-  'updateGroup': updateGroup
-
+  'updateGroup': updateGroup,
 };
