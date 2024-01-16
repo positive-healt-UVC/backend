@@ -103,28 +103,6 @@ app.put('/groups/:id', cors(), async (req, res) => {
   }
 });
 
-// Get members of a group
-app.get('/groups/:groupId/members', cors(), async (req, res) => {
-  try {
-    const groupId = req.params.groupId;
-
-    const groupMembers = await database.getGroupMembers(groupId);
-    const memberIds = groupMembers.map(member => member.userId);
-
-    // Fetch user details for each member
-    const members = await database.getUsers(memberIds);
-
-    // Send a more structured response
-    res.status(200).json({
-      groupId: groupId,
-      members: members
-    });
-  } catch (error) {
-    console.error('Error fetching group members:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
 // Get all members
 app.get('/members', cors(), async (req, res) => {
   try {
@@ -144,6 +122,48 @@ app.get('/members/group/:groupId', cors(), async (req, res) => {
     res.json(members);
   } catch (error) {
     console.error('Error fetching members by groupId:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Delete a member by id
+app.delete('/members/:id', cors(), async (req, res) => {
+  try {
+    const memberId = req.params.id;
+    
+    // Call the deleteMember function
+    await membersDatabase.deleteMember(memberId);
+
+    res.status(200).json({ message: 'Member deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting member:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Update a member by id
+app.put('/members/:id', cors(), async (req, res) => {
+  try {
+    const memberId = req.params.id;
+    const updatedMemberData = req.body;
+
+    await membersDatabase.updateMember(memberId, updatedMemberData);
+
+    res.status(200).json({ message: 'Member updated successfully' });
+  } catch (error) {
+    console.error('Error updating member:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Add a new member
+app.post('/members', cors(), async (req, res) => {
+  try {
+    const newMember = req.body;
+    await membersDatabase.addMember(newMember);
+    res.status(201).json({ message: 'Member added successfully' });
+  } catch (error) {
+    console.error('Error adding member:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
