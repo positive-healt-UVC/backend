@@ -73,6 +73,21 @@ app.post('/groups', cors(), async (req, res) => {
   }
 });
 
+// Add a user to a group
+app.post('/groups/:groupId/users/:userId', cors(), (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const userId = req.params.userId;
+
+    // Call the addMemberToGroup function
+    database.addMemberToGroup(groupId, userId);
+    res.status(201).json({ message: 'User added to the group successfully' });
+  } catch (error) {
+    console.error('Error adding user to group:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Delete a group by id
 app.delete('/groups/:id', cors(), async (req, res) => {
   try {
