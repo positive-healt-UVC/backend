@@ -115,11 +115,6 @@ async function getNextWeekFromDay(day) {
   });
 
   try {
-    // Fetch all groups for the user
-    const currentLoggedInUser = await getCurrentLoggedInUser()
-    const userGroups = await getAllUserGroups(currentLoggedInUser);
-
-    const eventsPromises = userGroups.map(async (group) => {
       const beginDate = new Date(day);
       beginDate.setDate(beginDate.getDate() + 1);
       const beginFormattedDate = beginDate.toISOString().split('T')[0];
@@ -131,8 +126,8 @@ async function getNextWeekFromDay(day) {
       // Fetch events for each group within the specified date range
       const events = await new Promise((resolve, reject) => {
         db.all(
-          'SELECT * FROM events WHERE date BETWEEN ? AND ? AND groupId = ? ORDER BY date',
-          [beginFormattedDate, endFormattedDate, group.groupId],
+          'SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date',
+          [beginFormattedDate, endFormattedDate],
           (error, rows) => {
             if (error) {
               reject(error);
@@ -144,13 +139,6 @@ async function getNextWeekFromDay(day) {
       });
 
       return events;
-    });
-
-    const allEvents = await Promise.all(eventsPromises);
-
-    // Combines the array of arrays into 1 single array
-    const AllEvents = allEvents.reduce((acc, events) => acc.concat(events), []);
-    return AllEvents;
   } finally {
     db.close();
   }
