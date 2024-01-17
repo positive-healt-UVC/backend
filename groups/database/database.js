@@ -250,6 +250,39 @@ async function getGroupMembers(groupId) {
   });
 }
 
+/**
+ * Add a user to a group in the database.
+ * 
+ * @param {number} groupId - The id of the group.
+ * @param {number} userId - The id of the user.
+ */
+function addMemberToGroup(groupId, userId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on("error", function (error) {
+    console.log("Error adding user to group: ", error);
+  });
+
+  // Insert sample data into the "groupmembers" table
+  db.serialize(() => {
+    // Create a template string for the database
+    const insertStmt = db.prepare(
+      'INSERT INTO groupMembers (groupId, userId) VALUES (?, ?)'
+    );
+
+    // Insert the user and group into the database
+    insertStmt.run(groupId, userId);
+
+    // Finalize the insertion and inform the app
+    insertStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
@@ -262,4 +295,5 @@ module.exports = {
   'getUsersGroups': getUserGroups,
   'deleteGroup': deleteGroup,
   'updateGroup': updateGroup,
+  'addMemberToGroup': addMemberToGroup,
 };
