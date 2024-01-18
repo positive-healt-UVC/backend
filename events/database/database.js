@@ -34,8 +34,9 @@ function initializeDB() {
           location TEXT,
           groupId INT,
           user_id INTEGER,
-          FOREIGN KEY (user_id) REFERENCES users(id)
-       );`
+          FOREIGN KEY (user_id) REFERENCES users(id),
+          FOREIGN KEY (groupId) REFERENCES groups(id)
+        );`
   );
 
   db.close();
@@ -50,6 +51,29 @@ function initializeDB() {
 async function getAllGroups() {
   try {
     const res = await fetch("http://gateway:3000/groups/groups/");
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves all groups from the server.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved groups data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getAllUserGroups(userId) {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error reading groups: ", error);
+  });
+
+  try {
+    const res = await fetch(`http://gateway:3000/groups/groups/user/${userId}`);
     const values = await res.json();
     return values;
   } catch (error) {
@@ -83,32 +107,64 @@ async function getAllEvents() {
  * @param {string} day The day to start the next week from. Should be in 'YYYY-MM-DD' format.
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of events for the next week or an error.
  */
-function getNextWeekFromDay(day) {
+async function getNextWeekFromDay(day) {
   const db = connectDB();
 
   db.on("error", function (error) {
     console.log("Error reading events: ", error);
   });
 
-  return new Promise((resolve, reject) => {
-    const beginDate = new Date(day);
-    beginDate.setDate(beginDate.getDate() + 1)
-    const beginFormattedDate = beginDate.toISOString().split('T')[0]
+  try {
+      const beginDate = new Date(day);
+      beginDate.setDate(beginDate.getDate() + 1);
+      const beginFormattedDate = beginDate.toISOString().split('T')[0];
 
-    const endDate = new Date(beginDate);
-    endDate.setDate(beginDate.getDate() + 6)
-    const endFormattedDate = endDate.toISOString().split('T')[0]
+      const endDate = new Date(beginDate);
+      endDate.setDate(beginDate.getDate() + 6);
+      const endFormattedDate = endDate.toISOString().split('T')[0];
 
-    db.all('SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date', [beginFormattedDate, endFormattedDate], (error, rows) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(rows);
-      }
+      // Fetch events for each group within the specified date range
+      const events = await new Promise((resolve, reject) => {
+        db.all(
+          'SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date',
+          [beginFormattedDate, endFormattedDate],
+          (error, rows) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(rows);
+            }
+          }
+        );
+      });
 
-      db.close();
-    });
+      return events;
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * Retrieves current logged in user.
+ *
+ * @returns {Promise<any>} A promise that resolves with the retrieved user data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getCurrentLoggedInUser() {
+  const db = connectDB();
+
+  db.on("error", function (error) {
+    console.log("Error reading user: ", error);
   });
+
+  try {
+    const res = await fetch(`http://gateway:3000/login/users/currentLoggedInUser`);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    throw error;
+  }
 }
 
 /**
@@ -143,10 +199,10 @@ function insertEvent(event) {
 
   db.serialize(() => {
     const insertStmt = db.prepare(
-      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      'INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location, groupId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     );
 
-    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location);
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location, event.groupId);
 
     insertStmt.finalize();
   });
@@ -194,7 +250,7 @@ async function updateEvent(id, updatedEvent) {
   return new Promise((resolve, reject) => {
     const updateStmt = db.prepare(`
       UPDATE events
-      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?
+      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?, groupId = ?
       WHERE id = ?
     `);
 
@@ -205,6 +261,7 @@ async function updateEvent(id, updatedEvent) {
       updatedEvent.startingTime,
       updatedEvent.endingTime,
       updatedEvent.location,
+      updatedEvent.groupId,
       id,
       (error) => {
         if (error) {

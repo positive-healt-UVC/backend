@@ -18,8 +18,6 @@ Zorgplanning en Activiteitenbeheer: De app bevat functies voor het plannen en be
 
 Smartwatch Integratie met NFC: AbilityLink maakt gebruik van smartwatch, waardoor gebruikers kunnen inchecken bij activiteiten met behulp van NFC-technologie. Dit draagt bij aan een vloeiende en moeiteloze deelname aan geplande activiteiten.
 
-
-
 ## Overview
 
 De backend van het project bestaat op het moment uit drie microservices.
@@ -30,6 +28,7 @@ Microservice | Technologie                  | Database | Port | Versie
 -------------|------------------------------|----------|------|-------
 Gateway      | NodeJS, Express, Axios, Cors | Json     | 3000 | 1.0.0
 Events       | NodeJS, Express              | Sqlite   | 3010 | 0.1.0
+Handicaps    | NodeJS, Express              | Sqlite   | 3015 | 1.0.0
 
 De microservices communiceren met de backend door middel van een API Gateway.
 In het uiteindelijke project zal een horloge / armband gebruikt worden die communiceerd met de front-end.
@@ -57,3 +56,14 @@ In het uiteindelijke project zal een horloge / armband gebruikt worden die commu
 
 - Nodemon (3.0.1)
 - Jest (29.7.0)
+
+## Handicaps
+
+- Node 20.10.0
+
+- Cors (2.8.5),
+- Express (4.18.2)
+- Sqlite3 (5.1.6)
+
+- Jest (29.7.0)
+- Nodemon (3.0.1)

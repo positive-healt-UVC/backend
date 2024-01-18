@@ -82,6 +82,9 @@ function performRequest(originalRequest) {
       'Cache-Control': 'no-cache',
     },
 
+    // Set the response type to arraybuffer to allow binary data to be sent
+    responseType: 'arraybuffer',
+
     // Copy the data from the body of the original request into the new request
     data: originalRequest.body,
   })
@@ -96,7 +99,14 @@ function performRequest(originalRequest) {
  */
 function createResponseHandler(responseHandler) {
   return (response) => {
-    responseHandler.send(response.data);
+    if (response.headers['content-type'].startsWith('image/')) {
+      responseHandler.setHeader('Content-Type', 'image/jpeg');
+      responseHandler.setHeader('Content-Length', response.data.length);
+      responseHandler.write(response.data, 'binary');
+      responseHandler.end();
+    } else {
+      responseHandler.send(response.data);
+    }
   }
 }
 

@@ -84,26 +84,17 @@ async function getAllGroups() {
 }
 
 /**
- * Get all the groupMembers saved into the database.
- * 
- * @returns the groupMembers present inside the database.
+ * Retrieves users based on their ids.
+ *
+ * @param {Array<number>} ids An array of user ids.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of user objects that match the given ids.
  */
-async function getAllGroupMembers() {
-  // Connect to the database
-  const db = connectDB();
-
-  // Setup the error
-  db.on("error", function (error) {
-    console.log("Error reading groupMembers: ", error);
-  });
-
-  // Get all the rows and return them to the application
-  return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM groupMembers', (error, rows) => {
-      resolve(rows);
-    });
-  });
+async function getUsers(ids) {
+  let users = await fetch("http://login:3011/users");
+  users = await users.json();
+  return users.filter((user) => ids.includes(user.id));
 }
+
 /**
  * Get a single event from the database by id.
  * 
@@ -181,13 +172,128 @@ function getUserGroups(userId) {
   })
 }
 
+/**
+ * Delete a group from the database by id.
+ * 
+ * @param {number} id - The id of the group you want to delete.
+ */
+function deleteGroup(id) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on("error", function (error) {
+    console.log("Error deleting group: ", error);
+  });
+
+  // Delete the group from the database
+  db.serialize(() => {
+    const deleteStmt = db.prepare('DELETE FROM groups WHERE id = ?');
+    
+    // Execute the deletion
+    deleteStmt.run(id);
+
+    // Finalize the deletion
+    deleteStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+/**
+ * Update a group in the database by id.
+ * 
+ * @param {number} id - The id of the group you want to update.
+ * @param {object} updatedGroup - The updated group object.
+ */
+function updateGroup(id, updatedGroup) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on("error", function (error) {
+    console.log("Error updating group: ", error);
+  });
+
+  // Update the group in the database
+  db.serialize(() => {
+    const updateStmt = db.prepare(
+      'UPDATE groups SET carer = ?, name = ? WHERE id = ?'
+    );
+
+    // Execute the update
+    updateStmt.run(updatedGroup.carer, updatedGroup.name, id);
+
+    // Finalize the update
+    updateStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+async function getGroupMembers(groupId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on("error", function (error) {
+    console.log("Error reading groupMembers: ", error);
+  });
+
+  // Get all the rows for the specified groupId and return them to the application
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT userId FROM groupMembers WHERE groupId = ${groupId};`, (error, rows) => {
+      resolve(rows);
+    });
+  });
+}
+
+/**
+ * Add a user to a group in the database.
+ * 
+ * @param {number} groupId - The id of the group.
+ * @param {number} userId - The id of the user.
+ */
+function addMemberToGroup(groupId, userId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on("error", function (error) {
+    console.log("Error adding user to group: ", error);
+  });
+
+  // Insert sample data into the "groupmembers" table
+  db.serialize(() => {
+    // Create a template string for the database
+    const insertStmt = db.prepare(
+      'INSERT INTO groupMembers (groupId, userId) VALUES (?, ?)'
+    );
+
+    // Insert the user and group into the database
+    insertStmt.run(groupId, userId);
+
+    // Finalize the insertion and inform the app
+    insertStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
 // Export the different parts of the modules
 module.exports = {
   'connectDB': connectDB,
   'getAllGroups': getAllGroups,
   'getGroup': getGroup,
-  'getAllGroupMembers': getAllGroupMembers,
+  'getGroupMembers': getGroupMembers,
+  'getUsers': getUsers,
   'insertGroup': insertGroup,
   'fillDatabase': fillDatabase,
-  'getUsersGroups': getUserGroups
+  'getUsersGroups': getUserGroups,
+  'deleteGroup': deleteGroup,
+  'updateGroup': updateGroup,
+  'addMemberToGroup': addMemberToGroup,
 };
