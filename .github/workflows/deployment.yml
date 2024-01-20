@@ -2,8 +2,7 @@ name: deploy-backend
 run-name: ${{ github.actor }} is deploying...
 
 on:
-  release:
-    types: [published]
+  push
 
 jobs:
     deploy-to-server:
