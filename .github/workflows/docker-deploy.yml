@@ -1,4 +1,4 @@
-name: Deploying Dockerized Application
+name: dploy-docker
 on:
   workflow_dispatch:
 
