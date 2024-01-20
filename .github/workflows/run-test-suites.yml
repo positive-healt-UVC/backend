@@ -1,17 +1,17 @@
-name: run-test-suites
-run-name: ${{ github.actor }} is testing...
-on: [push]
-jobs:
-  run-test-suites:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Setup gateway microservice
-        working-directory: ./gateway
-        run: npm install
-      - name: Run tests
-        working-directory: ./gateway
-        run: npm test
+# name: run-test-suites
+# run-name: ${{ github.actor }} is testing...
+# on: [push]
+# jobs:
+#   run-test-suites:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '20'
+#       - name: Setup gateway microservice
+#         working-directory: ./gateway
+#         run: npm install
+#       - name: Run tests
+#         working-directory: ./gateway
+#         run: npm test

@@ -12,8 +12,8 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Shutdown existing containers
-              run: docker-compose down
+              run: docker compose down
 
             - name: Run Docker
               working-directory: ./
-              run: docker-compose up -d
+              run: docker compose up -d

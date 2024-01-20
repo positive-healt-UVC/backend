@@ -1,24 +1,24 @@
-name: Deploy Dockerized App
+# name: Deploy Dockerized App
 
-on:
-  push
+# on:
+#   push
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Run your build or deploy steps
-      run: |
-        # Add your build or deploy steps here
-        echo "This workflow was manually triggered."
-  user-and-time:
-    runs-on: self-hosted
-    name: Running a simple Bash script
-    steps:
-    - name: A simple BASH script
-      id: BASH
-      uses: positive-healt-UVC/backend@Jimmaphy-patch-1
+#     - name: Run your build or deploy steps
+#       run: |
+#         # Add your build or deploy steps here
+#         echo "This workflow was manually triggered."
+#   user-and-time:
+#     runs-on: self-hosted
+#     name: Running a simple Bash script
+#     steps:
+#     - name: A simple BASH script
+#       id: BASH
+#       uses: positive-healt-UVC/backend@Jimmaphy-patch-1
