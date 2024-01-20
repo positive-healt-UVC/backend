@@ -1,12 +1,32 @@
-name: dploy-docker
+# name: deploy-docker
+# run-name: ${{ github.actor }} is deploying...
+
+# on:
+#   workflow_dispatch:
+
+# jobs:
+#   user-and-time:
+#     runs-on: self-hosted
+#     name: Running a simple Bash script
+#     steps:
+#     - name: A simple BASH script
+#       id: BASH
+#       uses: positive-healt-UVC/backend@Jimmaphy-patch-1
+
+name: Manual Triggered Workflow
+
 on:
   workflow_dispatch:
 
 jobs:
-  user-and-time:
-    runs-on: self-hosted
-    name: Running a simple Bash script
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-    - name: A simple BASH script
-      id: BASH
-      uses: positive-healt-UVC/backend@Jimmaphy-patch-1
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run your build or deploy steps
+      run: |
+        # Add your build or deploy steps here
+        echo "This workflow was manually triggered."
