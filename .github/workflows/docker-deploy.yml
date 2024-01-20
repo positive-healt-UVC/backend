@@ -1,0 +1,12 @@
+name: Deploying Dockerized Application
+on:
+  workflow_dispatch:
+
+jobs:
+  user-and-time:
+    runs-on: self-hosted
+    name: Running a simple Bash script
+    steps:
+    - name: A simple BASH script
+      id: BASH
+      uses: positive-healt-UVC/backend@Jimmaphy-patch-1
