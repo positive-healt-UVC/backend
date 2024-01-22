@@ -4,6 +4,8 @@ const router = express.Router();
 const axios = require("axios");
 const registry = require("./registry.json");
 
+let test = 1
+
 /**
  * Print information on the incoming request to the console.
  * The format of the message will be: "Incoming request: [METHOD] URL".
