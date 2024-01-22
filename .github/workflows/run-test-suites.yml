@@ -16,14 +16,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup
+      - name: Setup gateway microservice
+        working-directory: ./gateway
         run: npm install
 
       - name: Run tests
+        working-directory: ./gateway
         run: npm test
 
       - name: Install ESLint
+        working-directory: ./gateway
         run: npm install eslint --save-dev
 
       - name: Run ESLint
+        working-directory: ./gateway
         run: npx eslint .
