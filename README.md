@@ -99,6 +99,6 @@ Microservice | Eigenaar     | Development
 -------------|--------------|----------------------------------------------------------
 Gateway      | djairo27     | djairo27, Jimmaphy
 Events       | erjbroek     | erjbroek, Lardo-tech, ItsDimitrie, Ali-A-Hamdan, Jimmaphy
-Groups       | Ali-A-Hamdan | Ali-A-Hamdan, Lardo-tech, erjbroek
+Groups       | Ali-A-Hamdan | Ali-A-Hamdan, Lardo-tech, erjbroek, Willem-Arie
 Login        | Willem-Arie  | Willem-Arie, djairo27, ItsDimitrie
 Handicaps    | Jimmaphy     | Jimmaphy
