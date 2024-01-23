@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - groups/database/database.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>groups/database/database.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">82.65</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">299</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">22.52</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.18</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">// Import the SQLite library without messages
+const sqlite3 = require(&#039;sqlite3&#039;).verbose();
+
+/**
+ * Connect to the database.
+ * 
+ * @returns the database object to use, null on error.
+ */
+function connectDB() {
+  // Try to connect to the database and return the object
+  try {
+    const db = new sqlite3.Database(&#039;./database/groups.db&#039;);
+    return db;
+  }
+
+  // Whenever there is an error opening the database, show it in the console
+  catch (error) {
+    console.error(&#039;Error opening database:&#039;, err);
+  }
+}
+
+/**
+ * Fills the database with the necessary tables and initial data.
+ */
+function fillDatabase() {
+  const db = connectDB();
+
+  const createTable1 =
+    `CREATE TABLE IF NOT EXISTS groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    carer INT NOT NULL  
+  );`
+    ;
+
+  const createTable2 = `
+      CREATE TABLE IF NOT EXISTS groupMembers (
+      groupId INTEGER NOT NULL,
+      userId INTEGER NOT NULL
+      );
+  `;
+
+  db.serialize(() =&gt; {
+    db.exec(createTable1, function (err) {
+      if (err) {
+        console.error(err.message);
+      }
+    });
+
+    db.exec(createTable2, function (err) {
+      if (err) {
+        console.error(err.message);
+      }
+
+      db.close((err) =&gt; {
+        if (err) {
+          console.error(err.message);
+        }
+      });
+    });
+  });
+}
+
+/**
+ * Get all the group saved into the database.
+ * 
+ * @returns the group present inside the database.
+ */
+async function getAllGroups() {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading groups: &quot;, error);
+  });
+
+  // Get all the rows and return them to the application
+  return new Promise((resolve, reject) =&gt; {
+    db.all(&#039;SELECT * FROM groups&#039;, (error, rows) =&gt; {
+      resolve(rows);
+    });
+  });
+}
+
+/**
+ * Retrieves users based on their ids.
+ *
+ * @param {Array&lt;number&gt;} ids An array of user ids.
+ * @returns {Promise&lt;Array&lt;Object&gt;&gt;} A promise that resolves to an array of user objects that match the given ids.
+ */
+async function getUsers(ids) {
+  let users = await fetch(&quot;http://login:3011/users&quot;);
+  users = await users.json();
+  return users.filter((user) =&gt; ids.includes(user.id));
+}
+
+/**
+ * Get a single event from the database by id.
+ * 
+ * @param {number} id the id of the event you want to get.
+ * @returns the event.
+ */
+async function getGroup(id) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things for wrong
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading group: &quot;, error);
+  });
+
+  // Return the data from the API
+  return new Promise((resolve, reject) =&gt; {
+    db.get(`SELECT * FROM groups WHERE id=${id}`, (errors, rows) =&gt; {
+      resolve(rows);
+    });
+
+    db.close();
+  })
+}
+
+/**
+ * Add a single event to the database.
+ * 
+ * @param {object} group the group you want to add to the database.  
+ */
+function insertGroup(group) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Insert sample data into the &quot;events&quot; table
+  db.serialize(() =&gt; {
+    // Create a template string for the database
+    const insertStmt = db.prepare(
+      &#039;INSERT INTO groups (carer, name) VALUES (?, ?)&#039;
+    );
+
+    // Insert the event into the database
+    insertStmt.run(group.carer, group.name);
+
+    // Finalize the insertion and inform the app
+    insertStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+/**
+ * Fetches the user groups for a given user.
+ *
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise&lt;Array&lt;Object&gt;&gt;} - A promise that resolves to an array of user groups.
+ */
+function getUserGroups(userId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things for wrong
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading user group: &quot;, error);
+  });
+
+  // Return the data from the API
+  return new Promise((resolve, reject) =&gt; {
+    db.all(`SELECT * FROM groups, groupMembers WHERE userId=${userId} and groupId=id;`, (errors, rows) =&gt; {
+      resolve(rows);
+    });
+
+    db.close();
+  })
+}
+
+/**
+ * Delete a group from the database by id.
+ * 
+ * @param {number} id - The id of the group you want to delete.
+ */
+function deleteGroup(id) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error deleting group: &quot;, error);
+  });
+
+  // Delete the group from the database
+  db.serialize(() =&gt; {
+    const deleteStmt = db.prepare(&#039;DELETE FROM groups WHERE id = ?&#039;);
+    
+    // Execute the deletion
+    deleteStmt.run(id);
+
+    // Finalize the deletion
+    deleteStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+/**
+ * Update a group in the database by id.
+ * 
+ * @param {number} id - The id of the group you want to update.
+ * @param {object} updatedGroup - The updated group object.
+ */
+function updateGroup(id, updatedGroup) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error updating group: &quot;, error);
+  });
+
+  // Update the group in the database
+  db.serialize(() =&gt; {
+    const updateStmt = db.prepare(
+      &#039;UPDATE groups SET carer = ?, name = ? WHERE id = ?&#039;
+    );
+
+    // Execute the update
+    updateStmt.run(updatedGroup.carer, updatedGroup.name, id);
+
+    // Finalize the update
+    updateStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+async function getGroupMembers(groupId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading groupMembers: &quot;, error);
+  });
+
+  // Get all the rows for the specified groupId and return them to the application
+  return new Promise((resolve, reject) =&gt; {
+    db.all(`SELECT userId FROM groupMembers WHERE groupId = ${groupId};`, (error, rows) =&gt; {
+      resolve(rows);
+    });
+  });
+}
+
+/**
+ * Add a user to a group in the database.
+ * 
+ * @param {number} groupId - The id of the group.
+ * @param {number} userId - The id of the user.
+ */
+function addMemberToGroup(groupId, userId) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup an error for when things go wrong
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error adding user to group: &quot;, error);
+  });
+
+  // Insert sample data into the &quot;groupmembers&quot; table
+  db.serialize(() =&gt; {
+    // Create a template string for the database
+    const insertStmt = db.prepare(
+      &#039;INSERT INTO groupMembers (groupId, userId) VALUES (?, ?)&#039;
+    );
+
+    // Insert the user and group into the database
+    insertStmt.run(groupId, userId);
+
+    // Finalize the insertion and inform the app
+    insertStmt.finalize();
+  });
+
+  // Close the database connection
+  db.close();
+}
+
+// Export the different parts of the modules
+module.exports = {
+  &#039;connectDB&#039;: connectDB,
+  &#039;getAllGroups&#039;: getAllGroups,
+  &#039;getGroup&#039;: getGroup,
+  &#039;getGroupMembers&#039;: getGroupMembers,
+  &#039;getUsers&#039;: getUsers,
+  &#039;insertGroup&#039;: insertGroup,
+  &#039;fillDatabase&#039;: fillDatabase,
+  &#039;getUsersGroups&#039;: getUserGroups,
+  &#039;deleteGroup&#039;: deleteGroup,
+  &#039;updateGroup&#039;: updateGroup,
+  &#039;addMemberToGroup&#039;: addMemberToGroup,
+};</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
