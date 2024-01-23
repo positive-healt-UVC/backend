@@ -3,7 +3,6 @@ name: run-test-suites
 on:
   push:
     branches:
-      - main
 
 jobs:
   run-test-suites:
