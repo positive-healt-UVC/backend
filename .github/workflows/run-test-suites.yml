@@ -65,6 +65,9 @@ jobs:
           # Fetch
           git fetch
 
+          # Pull
+          git pull
+
           # Copy only the index.html file to the root
           cp temp/index.html .
 
