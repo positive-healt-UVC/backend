@@ -44,14 +44,14 @@ jobs:
         run: |
           npx find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d report -x 'node_modules'
     
-      - name: Switch to gh-pages branch
-        run: |
-          git branch
-
       - name: Set up Git
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
+
+        - name: Switch to gh-pages branch
+        run: |
+          git branch --all
 
       - name: Switch to gh-pages branch
         run: |
