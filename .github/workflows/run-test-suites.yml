@@ -43,7 +43,7 @@ jobs:
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
         run: |
-          find ./ -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d reports
+          find ./ -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d reports ./gateway
     
 
       - name: Set up Git
@@ -72,14 +72,7 @@ jobs:
         run: mkdir temp
 
       - name: Copy all files from report to temp
-        run: |
-          if [ -d "./gateway/report/" ]; then
-            mkdir -p temp
-            cp -r ./gateway/report/* temp
-          else
-            echo "No files to copy."
-          fi
-      
+        run: cp -r ./gateway/report/* temp
 
       - name: Copy all files from temp to the root
         run: cp -r temp/* .
