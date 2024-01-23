@@ -70,6 +70,10 @@ jobs:
           git checkout -f gh-pagina 
           pwd
           ls
+          git rm -r '*'
+          git clean -fdX --exclude=.gitignore
+          git commit -m "Clean gh-pagina branch" || true
+          git push origin gh-pagina 
 
       - name: Print current working directory
         run: |
