@@ -46,7 +46,7 @@ jobs:
     
       - name: Switch to gh-pages branch
         run: |
-          git branch --all 
+          git branch
 
       - name: Set up Git
         run: |
