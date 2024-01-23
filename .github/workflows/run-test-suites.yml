@@ -3,7 +3,6 @@ name: run-test-suites
 on:
   push:
     branches:
-      - main
 
 jobs:
   run-test-suites:
@@ -58,7 +57,7 @@ jobs:
         run: |
           git checkout --orphan gh-pages
           git rm -rf .
-          cp -r ./gateway/report/* 
+          cp -r ./gateway/report/* .
           git add .
           git commit -m "Update GitHub Pages with Plato report"
-          git push origin gh-pages
+          git push --force origin gh-pages
