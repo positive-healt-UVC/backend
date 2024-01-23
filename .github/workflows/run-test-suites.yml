@@ -39,11 +39,10 @@ jobs:
       # - name: Count Lines of Code
       #   working-directory: ./gateway
       #   run: npx cloc .
- 
-      - name: Run Plato (Cyclomatic Complexity)
-        run: |
-          find ./ -path "./node_modules" -prune -o -name "*.js" -exec npx plato -r -d report {} +
+
     
+      - name: Run Plato (Cyclomatic Complexity)
+        run: npx plato -r -d report ./ --exclude "node_modules|report|test|coverage|gateway|gateway."
 
       - name: Set up Git
         run: |
