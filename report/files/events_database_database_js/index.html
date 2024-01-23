@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - events/database/database.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>events/database/database.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">77.14</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">311</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">29.83</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.46</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">const sqlite3 = require(&#039;sqlite3&#039;).verbose();
+
+/**
+ * Connects to the database and returns a database instance.
+ *
+ * @returns {Database} The connected database instance.
+ */
+function connectDB() {
+  try {
+    const db = new sqlite3.Database(&#039;./database/events.db&#039;);
+    return db;
+  } catch (error) {
+    console.error(&#039;Error opening database:&#039;, err);
+  }
+}
+
+/**
+ * Initializes the database by creating the &#039;events&#039; table if it does not already exist.
+ */
+function initializeDB() {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error initializing table: &quot;, error);
+  });
+
+  db.run(`CREATE TABLE IF NOT EXISTS events (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT,
+          description TEXT,
+          date TEXT,
+          startingTime TEXT,
+          endingTime TEXT,
+          location TEXT,
+          groupId INT,
+          user_id INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users(id),
+          FOREIGN KEY (groupId) REFERENCES groups(id)
+        );`
+  );
+
+  db.close();
+}
+
+/**
+ * Retrieves all groups from the server.
+ *
+ * @returns {Promise&lt;any&gt;} A promise that resolves with the retrieved groups data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getAllGroups() {
+  try {
+    const res = await fetch(&quot;http://gateway:3000/groups/groups/&quot;);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error(&quot;Error during fetch:&quot;, error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves all groups from the server.
+ *
+ * @returns {Promise&lt;any&gt;} A promise that resolves with the retrieved groups data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getAllUserGroups(userId) {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading groups: &quot;, error);
+  });
+
+  try {
+    const res = await fetch(`http://gateway:3000/groups/groups/user/${userId}`);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error(&quot;Error during fetch:&quot;, error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves all events from the database.
+ *
+ * @returns {Promise} A promise that resolves with an array of event objects.
+ */
+async function getAllEvents() {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading events: &quot;, error);
+  });
+
+  return new Promise((resolve, reject) =&gt; {
+    db.all(&#039;SELECT * FROM events&#039;, (error, rows) =&gt; {
+      resolve(rows);
+    });
+  });
+}
+
+/**
+ * Gets the events for the next week starting from the given day.
+ *
+ * @param {string} day The day to start the next week from. Should be in &#039;YYYY-MM-DD&#039; format.
+ * @returns {Promise&lt;Array&lt;Object&gt;&gt;} A promise that resolves to an array of events for the next week or an error.
+ */
+async function getNextWeekFromDay(day) {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading events: &quot;, error);
+  });
+
+  try {
+      const beginDate = new Date(day);
+      beginDate.setDate(beginDate.getDate() + 1);
+      const beginFormattedDate = beginDate.toISOString().split(&#039;T&#039;)[0];
+
+      const endDate = new Date(beginDate);
+      endDate.setDate(beginDate.getDate() + 6);
+      const endFormattedDate = endDate.toISOString().split(&#039;T&#039;)[0];
+
+      // Fetch events for each group within the specified date range
+      const events = await new Promise((resolve, reject) =&gt; {
+        db.all(
+          &#039;SELECT * FROM events WHERE date BETWEEN ? AND ? ORDER BY date&#039;,
+          [beginFormattedDate, endFormattedDate],
+          (error, rows) =&gt; {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(rows);
+            }
+          }
+        );
+      });
+
+      return events;
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * Retrieves current logged in user.
+ *
+ * @returns {Promise&lt;any&gt;} A promise that resolves with the retrieved user data.
+ * @throws {Error} If there is an error during the fetch operation.
+ */
+async function getCurrentLoggedInUser() {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading user: &quot;, error);
+  });
+
+  try {
+    const res = await fetch(`http://gateway:3000/login/users/currentLoggedInUser`);
+    const values = await res.json();
+    return values;
+  } catch (error) {
+    console.error(&quot;Error during fetch:&quot;, error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves an event from the database based on the provided event ID.
+ *
+ * @param {number} id The ID of the event to retrieve.
+ * @returns {Promise&lt;object&gt;} A promise that resolves to the retrieved event object.
+ */
+async function getEvent(id) {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error reading event: &quot;, error);
+  });
+
+  return new Promise((resolve, reject) =&gt; {
+    db.get(`SELECT * FROM events WHERE id=${id}`, (errors, rows) =&gt; {
+      resolve(rows);
+    });
+
+    db.close();
+  })
+}
+
+/**
+ * Inserts an event into the database.
+ *
+ * @param {Object} event The event object to be inserted.
+ */
+function insertEvent(event) {
+  const db = connectDB();
+
+  db.serialize(() =&gt; {
+    const insertStmt = db.prepare(
+      &#039;INSERT INTO events (user_id, name, description, date, startingTime, endingTime, location, groupId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)&#039;
+    );
+
+    insertStmt.run(event.user_id, event.name, event.description, event.date, event.startingTime, event.endingTime, event.location, event.groupId);
+
+    insertStmt.finalize();
+  });
+
+  db.close();
+}
+
+/**
+ * Deletes an event with the specified ID from the database.
+ *
+ * @param {number} id The ID of the event to be deleted.
+ * @returns {Promise&lt;object&gt;} A promise that resolves with an object containing the result message of the deletion.
+ *.
+ */
+async function deleteEvent(id) {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function (error) {
+    console.log(&quot;Error deleting event: &quot;, error);
+  });
+
+  return new Promise((resolve, reject) =&gt; {
+    db.run(`DELETE FROM events WHERE id=${id}`, function (error) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ message: &#039;Event deleted successfully&#039; });
+      }
+    });
+
+    db.close();
+  });
+}
+
+/**
+ * Updates an event in the database with the given id.
+ *
+ * @param {string} id The id of the event to be updated.
+ * @param {Object} updatedEvent The updated event object containing the new values.
+ * @returns {Promise&lt;Object&gt;} A Promise that resolves to a message indicating the success of the operation.
+ */
+async function updateEvent(id, updatedEvent) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) =&gt; {
+    const updateStmt = db.prepare(`
+      UPDATE events
+      SET name = ?, description = ?, date = ?, startingTime = ?, endingTime = ?, location = ?, groupId = ?
+      WHERE id = ?
+    `);
+
+    updateStmt.run(
+      updatedEvent.name,
+      updatedEvent.description,
+      updatedEvent.date,
+      updatedEvent.startingTime,
+      updatedEvent.endingTime,
+      updatedEvent.location,
+      updatedEvent.groupId,
+      id,
+      (error) =&gt; {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({ message: &#039;Event updated successfully&#039; });
+        }
+      }
+    );
+
+    updateStmt.finalize();
+  });
+}
+
+/**
+ * Retrieves all appointments for a given user ID from the database.
+ *
+ * @param {number} userId The ID of the user.
+ * @returns {Promise&lt;unknown&gt;} A promise that resolves with an array of appointment objects or rejects with an error.
+ */
+async function getAppointmentsForUser(userId) {
+  const db = connectDB();
+
+  return new Promise((resolve, reject) =&gt; {
+    db.all(&#039;SELECT * FROM appointments WHERE user_id = ?&#039;, [userId], (error, rows) =&gt; {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+      db.close();
+    });
+  });
+}
+
+module.exports = {
+  &#039;connectDB&#039;: connectDB,
+  &#039;initializeDB&#039;: initializeDB,
+  &#039;getAllGroups&#039;: getAllGroups,
+  &#039;getAllEvents&#039;: getAllEvents,
+  &#039;getNextWeekFromDay&#039;: getNextWeekFromDay,
+  &#039;getEvent&#039;: getEvent,
+  &#039;insertEvent&#039;: insertEvent,
+  &#039;deleteEvent&#039;: deleteEvent,
+  &#039;updateEvent&#039;: updateEvent,
+  &#039;getAppointmentsForUser&#039;: getAppointmentsForUser
+};</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
