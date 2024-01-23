@@ -2,7 +2,6 @@ name: run-test-suites
 
 on:
   push:
-    branches:
 
 jobs:
   run-test-suites:
@@ -17,21 +16,11 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Print current working directory
-        run: |
-             pwd
-             ls
-
       - name: Setup gateway microservice
         working-directory: ./gateway
         run: |
           npm install
           npm test
-
-      - name: Print current working directory
-        run: |
-            pwd
-             ls
 
       - name: Install ESLint
         working-directory: ./gateway
@@ -46,14 +35,10 @@ jobs:
         run: |
           npm install cloc plato --save-dev
 
-      - name: Print current working directory
-        run: |
-             pwd
-             ls
-
       # - name: Count Lines of Code
       #   working-directory: ./gateway
       #   run: npx cloc .
+
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
@@ -66,23 +51,29 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      - name: Print current working directory
-        run: |
-            pwd
-            ls
-
       - name: Switch to gh-pages branch
         run: |
+          pwd
+          ls
           git branch
+          pwd
+          ls
           git fetch
+          pwd
+          ls
           git pull
+          pwd
+          ls
           git stash
+          pwd
+          ls
           git checkout -f gh-pagina 
+          pwd
+          ls
 
       - name: Print current working directory
         run: |
           pwd
-          ls
 
       - name: Delete existing temp directory
         run: rm -rf temp
@@ -91,26 +82,11 @@ jobs:
       - name: Create a temporary directory
         run: mkdir temp
 
-      - name: Print current working directory
-        run: |
-          pwd
-          ls
-
       - name: Copy all files from report to temp
         run: cp -r ./report/* temp
 
-      - name: Print current working directory
-        run: |
-          pwd
-          ls
-
       - name: Copy all files from temp to the root
         run: cp -r temp/* .
-
-      - name: Print current working directory
-        run: |
-          pwd
-          ls
 
       - name: Add all files to the commit
         run: git add .
