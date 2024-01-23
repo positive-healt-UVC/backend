@@ -36,6 +36,7 @@ jobs:
           git rm -r '*'
           git clean -fdX --exclude=.gitignore
           echo "*.md" > .gitignore
+          git add .
           git commit -m "Clean gh-pagina branch" || true
           ls
           git push origin gh-pagina 
