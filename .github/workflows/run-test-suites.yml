@@ -41,7 +41,7 @@ jobs:
       #   run: npx cloc .
 
       - name: Run Plato excluding node_modules
-        run: npx plato -r -d report -x 'node_modules' ./gateway
+        run: npx plato -r -d report ./ -x 'node_modules'
 
       - name: Set up Git
         run: |
