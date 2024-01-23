@@ -42,7 +42,8 @@ jobs:
 
       - name: Run Plato excluding node_modules
         run: |
-          find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d report
+          find . -type f -name '*.js' -print0 | grep -zZv '/node_modules/' | xargs -0 npx plato -r -d report
+    
 
 
       - name: Set up Git
