@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - login/index.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>login/index.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">64.73</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">119</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">25.07</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.00</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">// Import necessary modules
+const express = require(&#039;express&#039;);
+const cors = require(&#039;cors&#039;);
+const database  = require(&#039;./database/database&#039;);
+
+// Initialize the application
+const app = express();
+
+// Setup CORS and JSON parsing middleware
+app.use(cors());
+app.use(express.json());
+
+// Save dummy data to the server
+app.post(&#039;/populate-database&#039;, async (req, res) =&gt; {
+  try {
+    await populateDB();
+    res.json({ message: &#039;Database populated successfully&#039; });
+  } catch (error) {
+    console.error(&#039;Error populating database:&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039; });
+  }
+});
+
+// Get all user data from the &quot;users&quot; table
+app.get(&#039;/users&#039;, cors(), async (req, res, next) =&gt; { // Change to &quot;/users&quot;
+  try {
+    const users = await database.getAllUsers();
+    res.json(users);
+  } catch (error) {
+    console.error(&#039;Error fetching user data:&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039; });
+  }
+});
+
+// Gets current logged in user
+app.get(&#039;/users/currentLoggedInUser&#039;, cors(), (req, res, next) =&gt; {
+  try {
+    const user = database.currentLoggedInUser()
+    res.json(user);
+  } catch (error) {
+    console.error(&#039;Error fetch user data&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039;})
+  }
+});
+
+// Test data endpoint
+app.get(&#039;/users/:id&#039;, async (req, res) =&gt; {
+  try {
+    const userId = req.params.id;
+    const userData = await database.getUserDataPerUser(userId);
+
+    // Check if userData is not empty (user found)
+    if (userData &amp;&amp; userData.length &gt; 0) {
+      // Send the user data in the response
+      res.status(200).json({ user: userData[0] });
+    } else {
+      // Handle case where user is not found
+      res.status(404).json({ error: &#039;User not found&#039; });
+    }
+  } catch (error) {
+    console.error(&#039;Error fetching user data:&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039; });
+  }
+});
+
+// Register a new user
+app.post(&#039;/users&#039;, cors(), async (req, res) =&gt; {
+  try {
+    const newUserData = req.body;
+    await database.insertUser(newUserData);
+    res.status(201).json({ message: &#039;User data successfully added&#039; });
+  } catch (error) {
+    console.error(&#039;Error handling post request for user data:&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039; });
+  }
+});
+
+// Modify the route to handle login
+app.post(&#039;/users/login&#039;, cors(), async (req, res) =&gt; {
+  try {
+    const userCredentials = req.body;
+    const loginResult = await database.loginUser(userCredentials);
+    res.json(loginResult);
+  } catch (error) {
+    console.error(&#039;Error handling login request:&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039; });
+  }
+});
+
+// Update user data by ID
+app.put(&#039;/users/:id&#039;, cors(), async (req, res) =&gt; {
+  try {
+    const updatedUserData = req.body;
+    const userId = req.params.id;
+
+    const result = await database.updateUser({
+      id: userId,
+      ...updatedUserData,
+    });
+
+    if (result.message === &#039;User updated successfully&#039;) {
+      res.status(200).json({ message: &#039;User data successfully updated&#039; });
+    } else {
+      res.status(404).json({ error: &#039;User not found&#039; });
+    }
+  } catch (error) {
+    console.error(&#039;Error handling put request for user data:&#039;, error);
+    res.status(500).json({ error: &#039;Internal Server Error&#039; });
+  }
+});
+
+// Start the server
+const server = app.listen(process.env.PORT || 3011, () =&gt; {
+  // Tell the user about the state of the server 
+  console.log(`🍿 Login service running → PORT ${server.address().port}`);
+  
+  // Initialize the database on startup
+  database.initializeDB();
+});</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
