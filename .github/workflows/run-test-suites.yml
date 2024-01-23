@@ -27,9 +27,11 @@ jobs:
           git fetch
           git branch
           git checkout -f gh-pagina
+          ls
           git rm -r '*'
           git clean -fdX --exclude=.gitignore
           git commit -m "Clean gh-pagina branch" || true
+          ls
           git push origin gh-pagina 
           git checkout -f $GH_PAGES_BRANCH
 
