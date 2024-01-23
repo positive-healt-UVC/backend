@@ -41,6 +41,7 @@ jobs:
       #   run: npx cloc .
 
       - name: Run Plato (Cyclomatic Complexity)
+        working-directory: ./gateway
         run: |
           find ./ -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d reports
     
