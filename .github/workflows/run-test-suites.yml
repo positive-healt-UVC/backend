@@ -62,6 +62,7 @@ jobs:
       - name: Print current working directory
         run: |
           pwd
+          ls
 
       - name: Delete existing temp directory
         run: rm -rf temp
@@ -70,11 +71,26 @@ jobs:
       - name: Create a temporary directory
         run: mkdir temp
 
+      - name: Print current working directory
+        run: |
+          pwd
+          ls
+
       - name: Copy all files from report to temp
         run: cp -r ./report/* temp
 
+      - name: Print current working directory
+        run: |
+          pwd
+          ls
+
       - name: Copy all files from temp to the root
         run: cp -r temp/* .
+
+      - name: Print current working directory
+        run: |
+          pwd
+          ls
 
       - name: Add all files to the commit
         run: git add .
