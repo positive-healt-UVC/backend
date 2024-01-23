@@ -2,8 +2,6 @@ name: run-test-suites
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   run-test-suites:
@@ -45,8 +43,8 @@ jobs:
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
-        run: npx plato -r -d report src/ --exclude **/*.test.js --format json > plato-report.json
+        run: npx plato -r -d report src/ --exclude **/*.test.js
 
       - name: Display Plato Report
         run: |
-          cat plato-report.json
+          find ./gateway/report/ -type f -exec cat {} +
