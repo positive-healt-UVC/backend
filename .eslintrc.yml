@@ -1,0 +1,52 @@
+---
+env:
+  browser: true
+  node: true
+  es2021: true
+
+extends:
+  - eslint:recommended
+
+parserOptions:
+  ecmaVersion: 12
+  sourceType: module
+
+rules:
+  # Stylistic issues
+  indent: ['error', 2, { SwitchCase: 1 }]
+  quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }]
+  semi: ['error', 'always']
+  'comma-spacing': ['error', { before: false, after: true }]
+  'keyword-spacing': ['error', { before: true, after: true }]
+  'brace-style': ['error', '1tbs', { allowSingleLine: true }]
+  'space-before-blocks': ['error', 'always']
+  'space-in-parens': ['error', 'never']
+  'space-before-function-paren': ['error', { anonymous: 'always', named: 'never', asyncArrow: 'always' }]
+  'no-multi-spaces': ['warn', { ignoreEOLComments: true }]
+  'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 0, maxBOF: 0 }]
+  'eol-last': ['error', 'always']
+
+  # Best practices
+  'no-console': 'warn'
+  'no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: false }]
+  'no-undef': 'error'
+  'no-irregular-whitespace': 'error'
+  'no-unreachable': 'error'
+  'no-use-before-define': ['error', { functions: true, classes: true, variables: true }]
+  'no-dupe-args': 'error'
+  'no-dupe-keys': 'error'
+  'no-duplicate-case': 'error'
+  'no-empty': ['error', { allowEmptyCatch: true }]
+
+  # ES6+ and module-related
+  'arrow-spacing': ['error', { before: true, after: true }]
+  'arrow-parens': ['error', 'as-needed']
+  'arrow-body-style': ['error', 'as-needed']
+  'no-var': 'error'
+  'prefer-const': ['error', { destructuring: 'all' }]
+  'prefer-template': 'error'
+  'prefer-arrow-callback': 'error'
+  'prefer-rest-params': 'error'
+  'prefer-spread': 'error'
+  'rest-spread-spacing': ['error', 'never']
+  'template-curly-spacing': ['error', 'never']

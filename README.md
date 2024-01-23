@@ -1,69 +1,104 @@
-# Backend AbilityLink
+# AbilityLink Backend
 
-De backend van AbilityLink wordt gemaakt doormiddel van een Microservices Architectuur.
-Hierbij wordt er gebruik gemaakt van een API Gateway als toegang tot de andere services.
-Dit document beschrijft de technische opbouw van de backend.
-Dit omvat zowel de technische beschrijving als eventuele routing en andere afhankelijkheden.
-Ook zal er een beschrijving worden geleverd over de samenwerking tussen de verschillende services.
+Dit project bevat de back-end van de abilitylink applicatie.
+Zowel de technische beschrijving als mogelijke routes staan beschreven in dit document,
+Als ook de installatiewijze van de verschillende onderdelen.
+Als laatste zal er worden gekeken naar de verantwoordelijkheden van de verschillende teamleden.
 
 ## Project
 
-AbilityLink is een mobiele app die tot doel heeft de communicatie tussen zorgbegeleiders en mensen met beperkingen te vereenvoudigen en hen te ondersteunen om meer te bewegen.
-
+AbilityLink heeft als doel de communicatie tussen organisaties en beperkten te verbeteren.
+In een wereld waar beperkten mensen mee willen doen aan fysieke activiteiten,
+is het soms moeilijk voor begeleiders om op de juiste manier om te gaan met de deelnemers.
+Deze applicatie probeert om het gat tussen de partijen kleiner te maken,
+waardoor iedereen meer genot en effect uit de activiteiten kan halen.
 De app is ontworpen met de volgende belangrijke doelstellingen in gedachten:
 
-AbilityLink is specifiek ontworpen om toegankelijk te zijn voor mensen met diverse beperkingen. De app biedt aanpasbare functies en ondersteunt verschillende communicatiemodi om een inclusieve ervaring te waarborgen.
-
-Zorgplanning en Activiteitenbeheer: De app bevat functies voor het plannen en beheren van activiteiten. Zorgbegeleiders kunnen activiteiten toewijzen aan groepen, en zowel begeleiders als deelnemers kunnen deze activiteiten zien in hun agenda. Dit bevordert een georganiseerde en gestructureerde benadering van zorg en stimuleert de deelnemers om actiever deel te nemen aan de activiteiten.
-
-Smartwatch Integratie met NFC: AbilityLink maakt gebruik van smartwatch, waardoor gebruikers kunnen inchecken bij activiteiten met behulp van NFC-technologie. Dit draagt bij aan een vloeiende en moeiteloze deelname aan geplande activiteiten.
+- AbilityLink is specifiek ontworpen om toegankelijk te zijn voor mensen met diverse beperkingen. 
+De app biedt aanpasbare functies en ondersteunt verschillende communicatiemodi om een inclusieve ervaring te waarborgen.
+- Zorgplanning en Activiteitenbeheer. De app bevat functies voor het plannen en beheren van activiteiten. 
+Zorgbegeleiders kunnen activiteiten toewijzen aan groepen, 
+en zowel begeleiders als deelnemers kunnen deze activiteiten zien in hun agenda. 
+Dit bevordert een georganiseerde en gestructureerde benadering van zorg en stimuleert de deelnemers om actiever deel te nemen aan de activiteiten.
+- Zorgplanning en Activiteitenbeheer. De app bevat functies voor het plannen en beheren van activiteiten. 
+Zorgbegeleiders kunnen activiteiten toewijzen aan groepen, en zowel begeleiders als deelnemers kunnen deze activiteiten zien in hun agenda. 
+Dit bevordert een georganiseerde en gestructureerde benadering van zorg en stimuleert de deelnemers om actiever deel te nemen aan de activiteiten.
 
 ## Overview
 
-De backend van het project bestaat op het moment uit drie microservices.
-De microservices worden gedraait door middel van Docker Compose versie 3.8.
-De volgende services zijn op moment gedefiniëerd.
-
-Microservice | Technologie                  | Database | Port | Versie
--------------|------------------------------|----------|------|-------
-Gateway      | NodeJS, Express, Axios, Cors | Json     | 3000 | 1.0.0
-Events       | NodeJS, Express              | Sqlite   | 3010 | 0.1.0
-Handicaps    | NodeJS, Express              | Sqlite   | 3015 | 1.0.0
-
-De microservices communiceren met de backend door middel van een API Gateway.
-In het uiteindelijke project zal een horloge / armband gebruikt worden die communiceerd met de front-end.
+Om de applicatie te maken wordt er gebruik gemaakt van een (soort van) micro-services architectuur.
+Ieder onderdeel van de applicatie heeft een afgescherme omgeving,
+met een eigen database; server en applicatie.
+Op deze manier worden de onderdelen minder afhankelijk van elkaar,
+met de mogelijkheid om ze apart van elkaar te ontwikkelen.
+Om communicatie mogelijk te maken wordt er gebruik gemaakt van een Gateway.
+De applicatie bestaat uit de volgende gateways:
 
 ![Component Diagram](./docs/components.png)
 
-## Gateway
+Microservice | Technologie                    | Database | Port | Versie | Kleur
+-------------|--------------------------------|----------|------|--------|-------
+Gateway      | NodeJS, Express, Axios, Cors   | Json     | 3000 | 1.2.0  | N.v.t.
+Events       | NodeJS, Express, Cors, Sqlite3 | Sqlite   | 3010 | 1.1.0  | Groen
+Groups       | NodeJS, Express, Cors, Sqlite3 | Sqlite   | 3012 | 1.1.0  | Rood
+Login        | NodeJS, Express, Cors, Sqlite3 | Sqlite   | 3011 | 1.0.0  | Roze
+Handicaps    | NodeJS, Express, Cors, Sqlite3 | Sqlite   | 3015 | 1.0.0  | Blauw
 
-- Node 18.9.0
 
-- Jest (29.7.0)
-- Nodemon (3.0.1)
+Vanwege de gescheiden natuur van de applicatie, heeft iedere service een eigen database.
+Hoewel de databases opgedeeld zijn, zijn de tabellen nog steeds afhankelijk van elkaar.
+Dit is goed te zien in het volgende ERD-diagram.
+In dit diagram hebben de tabellen een kleur die hoort bij de betreffende service,
+deze zijn terug te vinden in de bovenstaande tabel.
 
-- Axios (1.6.2)
-- Cors (2.8.5)
-- Express (4.18.2)
+![Entity Relationship Diagram](./docs/erd.png)
 
-## Events
+## Afhankelijkheden
 
-- Node 18.9.0
+De verschillende onderdelen maken gebruik van de volgende afhankelijkheden.
+Dit zijn de externe pakketten die gebruikt worden om de applicatie te laten werken.
+Zowel de paketten als de gebruikte versies worden in dit hoofdstuk beschreven.
 
-- Cors (2.8.5)
-- Express (4.18.2)
-- Sqlite3 (5.1.6)
+- Gateway
+    - Node (20.10.0)
+    - **Development:** Jest (29.7.0), Nodemon (3.0.1)
+    - **Production:** Axios (1.6.2), Cors (2.8.5), Express (4.18.2)
+- Events
+    - Node 20.10.0
+    - **Development:** Jest (29.7.0)
+    - **Production:** Cors (2.8.5), Express (4.18.2), Sqlite3 (5.1.6), Nodemon (3.0.1)
+- Groups
+    - Node 20.10.0
+    - **Production:** Cors (2.8.5), Express (4.18.2), Sqlite3 (5.1.6), Nodemon (3.0.1)
+- Login
+    - Node 20.10.0
+    - **Development:** Jest (29.7.0)
+    - **Production:** Axios (1.6.2), Bcrypt (5.1.1), Cors (2.8.5), Express (4.18.2), Nodemon (3.0.1), Sqlite3 (5.1.6)
+- Handicaps
+    - Node 20.10.0
+    - **Development:** Cors (2.8.5), Express (4.18.2), Sqlite3 (5.1.6)
+    - **Production:** Jest (29.7.0), Nodemon (3.0.1)
 
-- Nodemon (3.0.1)
-- Jest (29.7.0)
+## Uitvoeren
 
-## Handicaps
+De applicatie op dit moment kan worden gebruikt doormiddel van docker of NPM.
 
-- Node 20.10.0
+```bash
+# Docker
+docker compose up
 
-- Cors (2.8.5),
-- Express (4.18.2)
-- Sqlite3 (5.1.6)
+# NPM
+npm install
+npm run dev     # Gateway
+npm run watch   # Events, Groups, Login & Handicaps
+```
 
-- Jest (29.7.0)
-- Nodemon (3.0.1)
+## Credits
+
+Microservice | Eigenaar     | Development
+-------------|--------------|----------------------------------------------------------
+Gateway      | djairo27     | djairo27, Jimmaphy
+Events       | erjbroek     | erjbroek, Lardo-tech, ItsDimitrie, Ali-A-Hamdan, Jimmaphy
+Groups       | Ali-A-Hamdan | Ali-A-Hamdan, Lardo-tech, erjbroek, Willem-Arie
+Login        | Willem-Arie  | Willem-Arie, djairo27, ItsDimitrie
+Handicaps    | Jimmaphy     | Jimmaphy
