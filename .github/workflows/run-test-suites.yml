@@ -20,6 +20,11 @@ jobs:
         run: |
           git fetch
           git branch
+          git checkout -f gh-pagina
+          git rm -r '*'
+          git clean -fdX --exclude=.gitignore
+          git commit -m "Clean gh-pagina branch" || true
+          git push origin gh-pagina 
 
       - name: Setup gateway microservice
         working-directory: ./gateway
