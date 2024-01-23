@@ -40,8 +40,9 @@ jobs:
       #   working-directory: ./gateway
       #   run: npx cloc .
 
-      - name: Run Plato excluding node_modules
-        run: npx plato -r -d report -x 'node_modules' ./
+      - name: Run Plato (Cyclomatic Complexity)
+        working-directory: ./gateway
+        run: npx plato -r -d report ./routes/index.js -x 'node_modules'
 
       - name: Set up Git
         run: |
