@@ -36,9 +36,9 @@ jobs:
         run: |
           npm install cloc plato --save-dev
 
-      - name: Count Lines of Code
-        working-directory: ./gateway
-        run: npx cloc .
+      # - name: Count Lines of Code
+      #   working-directory: ./gateway
+      #   run: npx cloc .
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
@@ -56,6 +56,10 @@ jobs:
           git pull
           git stash
           git checkout -f gh-pagina 
+
+      - name: Delete existing temp directory
+        run: rm -rf temp
+        continue-on-error: true
 
       - name: Create a temporary directory
         run: mkdir temp
