@@ -39,7 +39,7 @@ jobs:
 
       - name: Count Lines of Code
         working-directory: ./gateway
-        run: npx cloc --exclude-dir=report .
+        run: npx cloc .
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
@@ -47,4 +47,4 @@ jobs:
 
       - name: Display Plato Report
         run: |
-          cat ./gateway/report/*
+          find ./gateway/report/ -type f -exec cat {} +
