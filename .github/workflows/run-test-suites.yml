@@ -62,7 +62,7 @@ jobs:
           git fetch
 
           # set origin
-          git branch --set-upstream-to=origin/<branch> gh-pages
+          git branch --set-upstream-to=origin/gh-pages
 
           # Pull
           git pull
