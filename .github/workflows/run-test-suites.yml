@@ -55,7 +55,7 @@ jobs:
           git fetch
           git pull
           git stash
-          git checkout gh-pagina 
+          git checkout -f gh-pagina 
 
       - name: Create a temporary directory
         run: mkdir temp
