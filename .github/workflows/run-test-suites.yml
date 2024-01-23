@@ -3,6 +3,7 @@ name: run-test-suites
 on:
   push:
     branches:
+      - main
 
 jobs:
   run-test-suites:
@@ -15,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'  # Use a Node.js version that is compatible with your project
+          node-version: '14'
 
       - name: Setup gateway microservice
         working-directory: ./gateway
@@ -55,9 +56,17 @@ jobs:
 
       - name: Deploy to GitHub Pages
         run: |
-          git checkout --orphan gh-pages
-          git rm -rf .
-          cp -r ./gateway/report/* .
+          # Create a temporary directory
+          mkdir temp
+          cp -r ./gateway/report/* temp
+
+          # Switch to the gh-pages branch
+          git checkout -b gh-pages
+
+          # Copy only the index.html file to the root
+          cp temp/index.html .
+
+          # Commit and push changes
           git add .
           git commit -m "Update GitHub Pages with Plato report"
-          git push --force origin gh-pages
+          git push origin gh-pages
