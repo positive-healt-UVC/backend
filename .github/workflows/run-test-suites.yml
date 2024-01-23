@@ -39,6 +39,26 @@ jobs:
       #   working-directory: ./gateway
       #   run: npx cloc .
 
+      - name: Switch to gh-pages branch
+        run: |
+          pwd
+          ls
+          git branch
+          pwd
+          ls
+          git fetch
+          pwd
+          ls
+          git pull
+          pwd
+          ls
+          git stash
+          pwd
+          ls
+          git checkout -f gh-pagina 
+          pwd
+          ls
+
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
