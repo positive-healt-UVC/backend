@@ -22,10 +22,6 @@ jobs:
           npm install
           npm test
 
-      - name: Switch to gh-pages branch
-        run: |
-          git branch --all 
-
       - name: Install ESLint
         working-directory: ./gateway
         run: npm install eslint --save-dev
@@ -48,6 +44,9 @@ jobs:
         run: |
           npx find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d report -x 'node_modules'
     
+      - name: Switch to gh-pages branch
+        run: |
+          git branch --all 
 
       - name: Set up Git
         run: |
