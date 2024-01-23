@@ -56,7 +56,7 @@ function createTargetUrl(parameters) {
   } 
   
   // The requrested service is not registered
-  catch {
+  catch (error) {
     throw Error("Requested service is not available, a check is available through the serviceExist method");
   }
 
