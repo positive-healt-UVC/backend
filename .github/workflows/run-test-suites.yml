@@ -41,7 +41,7 @@ jobs:
       #   run: npx cloc .
 
       - name: Run Plato (Cyclomatic Complexity)
-        working-directory: ./gateway
+        working-directory: ./
         run: npx plato -r -d reports ./gateway ./groups ./handicaps ./login ./events
 
       - name: Set up Git
