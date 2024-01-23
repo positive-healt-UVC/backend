@@ -64,8 +64,8 @@ jobs:
           # set origin
           git branch --set-upstream-to=origin/gh-pages
 
-          # Pull
-          git pull
+          # Pull with rebase
+          git pull --rebase
 
           # Copy only the index.html file to the root
           cp temp/index.html .
