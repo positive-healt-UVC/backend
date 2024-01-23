@@ -43,7 +43,7 @@ jobs:
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
         run: |
-          npx find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d report
+          npx find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d report -x 'node_modules'
     
 
       - name: Set up Git
