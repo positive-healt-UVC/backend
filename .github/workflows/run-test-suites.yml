@@ -68,6 +68,7 @@ jobs:
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
         run: |
+          ls ./
           npx find . -type f -name '*.js' -not -path './node_modules/*' -exec npx plato -r -d report -x 'node_modules' {} +
     
       - name: Switch to gh-pages branch
