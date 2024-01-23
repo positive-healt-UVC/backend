@@ -59,6 +59,11 @@ jobs:
           git stash
           git checkout -f gh-pagina 
 
+      - name: Delete existing content in gh-pagina branch
+        run: |
+          git rm -r '*'
+          git commit -m "Remove existing content" || true
+
       - name: Delete existing temp directory
         run: rm -rf temp
         continue-on-error: true
@@ -67,7 +72,7 @@ jobs:
         run: mkdir temp
 
       - name: Copy all files from report to temp
-        run: cp -r ./gateway/report/*
+        run: cp -r ./gateway/report/* temp
 
       - name: Copy all files from temp to the root
         run: cp -r temp/* .
