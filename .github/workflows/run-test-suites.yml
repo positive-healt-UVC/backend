@@ -56,25 +56,17 @@ jobs:
           cp -r ./gateway/report/* temp
 
           # Switch to the gh-pages branch
-          git checkout -b gh-pages
+          git checkout gh-pages
 
-          # Fetch
-          git fetch
+          # Fetch and pull
+          git pull origin gh-pages
 
-          # set origin
-          git branch --set-upstream-to=origin/gh-pages
+          # Copy all files from temp to the root
+          cp -r temp/* .
 
-          # Commit changes (including unstaged changes)
+          # Add all files to the commit
           git add .
-          git commit -m "Commit unstaged changes"
-
-          # Pull with rebase
-          git pull --rebase
-
-          # Copy only the index.html file to the root
-          cp temp/index.html .
 
           # Commit and push changes
-          git add .
           git commit -m "Update GitHub Pages with Plato report"
           git push origin gh-pages
