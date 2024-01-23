@@ -49,24 +49,24 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      - name: Deploy to GitHub Pages
+      - name: Switch to gh-pages branch
         run: |
-          # Create a temporary directory
-          mkdir temp
-          cp -r ./gateway/report/* temp
+          git fetch origin gh-pages:gh-pages
+          git checkout gh-pages || git checkout -b gh-pages
 
-          # Switch to the gh-pages branch
-          git checkout gh-pages
+      - name: Create a temporary directory
+        run: mkdir temp
 
-          # Fetch and pull
-          git pull origin gh-pages
+      - name: Copy all files from report to temp
+        run: cp -r ./gateway/report/* temp
 
-          # Copy all files from temp to the root
-          cp -r temp/* .
+      - name: Copy all files from temp to the root
+        run: cp -r temp/* .
 
-          # Add all files to the commit
-          git add .
+      - name: Add all files to the commit
+        run: git add .
 
-          # Commit and push changes
+      - name: Commit and push changes
+        run: |
           git commit -m "Update GitHub Pages with Plato report"
           git push origin gh-pages
