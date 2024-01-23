@@ -52,9 +52,9 @@ jobs:
       - name: Switch to gh-pages branch
         run: |
           git stash
-          git checkout -b gh-pages origin/gh-pages
-          git fetch origin gh-pages:gh-pages
-          git checkout gh-pages
+          git checkout -b gh-pagina origin/gh-pagina 
+          git fetch origin gh-pagina:gh-pagina 
+          git checkout gh-pagina
 
       - name: Create a temporary directory
         run: mkdir temp
@@ -71,4 +71,4 @@ jobs:
       - name: Commit and push changes
         run: |
           git commit -m "Update GitHub Pages with Plato report"
-          git push origin gh-pages
+          git push origin gh-pagina 
