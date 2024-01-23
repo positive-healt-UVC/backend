@@ -40,10 +40,6 @@ jobs:
       #   working-directory: ./gateway
       #   run: npx cloc .
 
-      - name: Print current working directory
-        run: |
-          pwd
-
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
         run: |
@@ -62,6 +58,10 @@ jobs:
           git pull
           git stash
           git checkout -f gh-pagina 
+
+      - name: Print current working directory
+        run: |
+          pwd
 
       - name: Delete existing temp directory
         run: rm -rf temp
