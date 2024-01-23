@@ -40,9 +40,9 @@ jobs:
       #   working-directory: ./gateway
       #   run: npx cloc .
 
-      - name: Run Plato for JavaScript files excluding node_modules
+      - name: Run Plato excluding node_modules
         run: |
-          find ./ -type f -name '*.js' -not -path './gateway/node_modules/*' -print0 | xargs -0 npx plato -r -d report ./
+          find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d report
 
 
       - name: Set up Git
