@@ -36,14 +36,13 @@ jobs:
         run: |
           npm install cloc plato --save-dev
 
-      - name: Count Lines of Code
-        working-directory: ./gateway
-        run: npx cloc .
+      # - name: Count Lines of Code
+      #   working-directory: ./gateway
+      #   run: npx cloc .
 
       - name: Run Plato excluding node_modules
-        run: |
-          find . -type f -name '*.js' -print0 | grep -zZv '/node_modules/' | xargs -0 npx plato -r -d report ./gateway
-    
+        run: npx plato -r -d report ./ --exclude .platoignore
+
       - name: Set up Git
         run: |
           git config --global user.email "actions@github.com"
