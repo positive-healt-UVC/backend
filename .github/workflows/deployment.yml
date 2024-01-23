@@ -1,0 +1,20 @@
+name: deploy-backend
+run-name: ${{ github.actor }} is deploying...
+
+on:
+  release:
+    types: [published]
+
+jobs:
+    deploy-to-server:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Shutdown existing containers
+              run: docker-compose down
+
+            - name: Run Docker
+              working-directory: ./
+              run: docker-compose up -d
