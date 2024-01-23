@@ -7,6 +7,9 @@ jobs:
   run-test-suites:
     runs-on: ubuntu-latest
 
+    env:
+      GH_PAGES_BRANCH: ${{ github.ref }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,6 +28,7 @@ jobs:
           git clean -fdX --exclude=.gitignore
           git commit -m "Clean gh-pagina branch" || true
           git push origin gh-pagina 
+          git checkout -f ${{ env.GH_PAGES_BRANCH }}
 
       - name: Setup gateway microservice
         working-directory: ./gateway
