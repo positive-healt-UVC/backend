@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Switch to gh-pages branch
+        run: |
+          git branch
+          git checkout -f gh-pagina 
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -39,31 +43,6 @@ jobs:
       #   working-directory: ./gateway
       #   run: npx cloc .
 
-      - name: Switch to gh-pages branch
-        run: |
-          pwd
-          ls
-          git branch
-          pwd
-          ls
-          git fetch
-          pwd
-          ls
-          git pull
-          pwd
-          ls
-          git stash
-          pwd
-          ls
-          git checkout -f gh-pagina 
-          pwd
-          ls
-          git rm -r '*'
-          git clean -fdX --exclude=.gitignore
-          git commit -m "Clean gh-pagina branch" || true
-          git push origin gh-pagina 
-
-
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
         run: |
@@ -77,23 +56,11 @@ jobs:
 
       - name: Switch to gh-pages branch
         run: |
-          pwd
-          ls
           git branch
-          pwd
-          ls
           git fetch
-          pwd
-          ls
           git pull
-          pwd
-          ls
           git stash
-          pwd
-          ls
           git checkout -f gh-pagina 
-          pwd
-          ls
 
       - name: Print current working directory
         run: |
