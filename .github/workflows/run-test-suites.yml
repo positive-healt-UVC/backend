@@ -18,15 +18,14 @@ jobs:
 
       - name: Setup gateway microservice
         working-directory: ./gateway
-        run: npm install
+        run: |
+          npm install
+          npm install eslint --save-dev
+          npm install cloc plato --save-dev
 
       - name: Run tests
         working-directory: ./gateway
         run: npm test
-
-      - name: Install ESLint
-        working-directory: ./gateway
-        run: npm install eslint --save-dev
 
       - name: Run ESLint
         working-directory: ./gateway
@@ -34,7 +33,7 @@ jobs:
 
       - name: Count Lines of Code
         working-directory: ./gateway
-        run: cloc .
+        run: npx cloc .
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
