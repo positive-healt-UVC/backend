@@ -7,10 +7,13 @@ jobs:
   run-test-suites:
     runs-on: ubuntu-latest
 
-    env:
-      GH_PAGES_BRANCH: ${{ if startsWith(github.ref, 'refs/heads/') }}${{ github.ref }}${{ else }}${{ github.event.ref }}${{ endif }}
-
     steps:
+      - name: Set Branch Name
+        run: echo "GH_PAGES_BRANCH=$(echo $GITHUB_REF | sed 's/refs\/heads\///')" >> $GITHUB_ENV
+
+      - name: Check GH_PAGES_BRANCH
+        run: echo "Branch Name is $GH_PAGES_BRANCH"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
