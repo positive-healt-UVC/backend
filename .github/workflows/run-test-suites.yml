@@ -68,6 +68,9 @@ jobs:
           # Pull
           git pull
 
+          # set origin
+          git branch --set-upstream-to=origin/<branch> gh-pages
+
           # Copy only the index.html file to the root
           cp temp/index.html .
 
