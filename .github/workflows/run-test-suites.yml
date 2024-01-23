@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GH_PAGES_BRANCH: ${{ github.ref }}
+      GH_PAGES_BRANCH: ${{ github.event_name == 'push' && replace(github.ref, 'refs/heads/', '') || github.ref }}
 
     steps:
       - name: Checkout repository
