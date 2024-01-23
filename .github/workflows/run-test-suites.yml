@@ -51,7 +51,8 @@ jobs:
 
       - name: Switch to gh-pages branch
         run: |
-          git branch
+          git stash
+          git checkout gh-pages
           git fetch origin gh-pages:gh-pages
           git checkout gh-pages
 
