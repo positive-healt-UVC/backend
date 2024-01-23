@@ -64,6 +64,10 @@ jobs:
           # set origin
           git branch --set-upstream-to=origin/gh-pages
 
+          # Commit changes (including unstaged changes)
+          git add .
+          git commit -m "Commit unstaged changes"
+
           # Pull with rebase
           git pull --rebase
 
