@@ -31,3 +31,11 @@ jobs:
       - name: Run ESLint
         working-directory: ./gateway
         run: npx eslint .
+
+      - name: Count Lines of Code
+        working-directory: ./gateway
+        run: cloc .
+
+      - name: Run Plato (Cyclomatic Complexity)
+        working-directory: ./gateway
+        run: npx plato -r -d report src/
