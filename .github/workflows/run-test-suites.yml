@@ -61,8 +61,10 @@ jobs:
 
       - name: Delete existing content in gh-pagina branch
         run: |
-            git clean -fdX --exclude=.gitignore
+            rm -rf !(temp|.gitignore)
+            git add -A
             git commit -m "Remove existing content" || true
+        
         
 
       - name: Delete existing temp directory
