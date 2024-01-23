@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GH_PAGES_BRANCH: ${{ replace(github.event.ref, 'refs/heads/', '') }}
+      GH_PAGES_BRANCH: ${{ if startsWith(github.ref, 'refs/heads/') }}${{ github.ref }}${{ else }}${{ github.event.ref }}${{ endif }}
 
     steps:
       - name: Checkout repository
