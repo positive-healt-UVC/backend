@@ -62,6 +62,9 @@ jobs:
           # Switch to the gh-pages branch
           git checkout -b gh-pages
 
+          # Fetch
+          git fetch
+
           # Copy only the index.html file to the root
           cp temp/index.html .
 
