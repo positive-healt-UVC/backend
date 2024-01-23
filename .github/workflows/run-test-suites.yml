@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
-        run: npx plato -r -d report ./
+        run: npx plato -r -d report ./ --exclude node_modules/**
 
       - name: Set up Git
         run: |
