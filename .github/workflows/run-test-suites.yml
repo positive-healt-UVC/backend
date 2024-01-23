@@ -17,11 +17,21 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Print current working directory
+        run: |
+             pwd
+             ls
+
       - name: Setup gateway microservice
         working-directory: ./gateway
         run: |
           npm install
           npm test
+
+      - name: Print current working directory
+        run: |
+            pwd
+             ls
 
       - name: Install ESLint
         working-directory: ./gateway
@@ -35,6 +45,11 @@ jobs:
       - name: Install cloc and plato
         run: |
           npm install cloc plato --save-dev
+
+      - name: Print current working directory
+        run: |
+             pwd
+             ls
 
       # - name: Count Lines of Code
       #   working-directory: ./gateway
@@ -50,6 +65,11 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
+
+      - name: Print current working directory
+        run: |
+            pwd
+            ls
 
       - name: Switch to gh-pages branch
         run: |
