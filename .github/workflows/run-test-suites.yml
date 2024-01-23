@@ -52,7 +52,7 @@ jobs:
       - name: Switch to gh-pages branch
         run: |
           git fetch origin gh-pages:gh-pages
-          git checkout gh-pages || git checkout -b gh-pages
+          git checkout gh-pages
 
       - name: Create a temporary directory
         run: mkdir temp
