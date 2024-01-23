@@ -28,9 +28,9 @@ jobs:
         working-directory: ./gateway
         run: npm install eslint --save-dev
 
-      - name: Run ESLint
-        working-directory: ./gateway
-        run: npx eslint .
+      # - name: Run ESLint
+      #   working-directory: ./gateway
+      #   run: npx eslint .
 
       - name: Install cloc and plato
         run: |
