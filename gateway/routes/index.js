@@ -4,7 +4,7 @@ const router = express.Router();
 const axios = require("axios");
 const registry = require("./registry.json");
 
-let test = 12
+let test = 1
 
 /**
  * Print information on the incoming request to the console.
