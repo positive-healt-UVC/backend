@@ -28,9 +28,9 @@ jobs:
         working-directory: ./gateway
         run: npm install eslint --save-dev
 
-      # - name: Run ESLint
-      #   working-directory: ./gateway
-      #   run: npx eslint .
+      - name: Run ESLint
+        working-directory: ./gateway
+        run: npx eslint .
 
       - name: Install cloc and plato
         run: |
@@ -43,3 +43,7 @@ jobs:
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
         run: npx plato -r -d report src/ --exclude **/*.test.js
+
+      - name: Display Plato Report
+        run: |
+          cat ./gateway/report/*
