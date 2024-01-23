@@ -72,7 +72,14 @@ jobs:
         run: mkdir temp
 
       - name: Copy all files from report to temp
-        run: cp -r ./gateway/report/* temp
+        run: |
+          if [ -d "./gateway/report/" ]; then
+            mkdir -p temp
+            cp -r ./gateway/report/* temp
+          else
+            echo "No files to copy."
+          fi
+      
 
       - name: Copy all files from temp to the root
         run: cp -r temp/* .
