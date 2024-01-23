@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - login/database/database.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>login/database/database.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">76.13</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">247</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">29.69</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.01</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">// Import the SQLite library without messages
+const sqlite3 = require(&#039;sqlite3&#039;).verbose();
+let currentUser = null;
+
+/**
+ * Connect to the database.
+ * 
+ * @returns the database object to use, null on error.
+ */
+function connectDB() {
+  // Try to connect to the database and return the object
+  try {
+    const db = new sqlite3.Database(&#039;./database/users.db&#039;);
+    return db;
+  } catch (error) {
+    console.error(&#039;Error opening database:&#039;, error);
+    return null;
+  }
+}
+
+/** Initialize the database */
+function initializeDB() {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on(&quot;error&quot;, function(error) {
+    console.log(&quot;Error initializing table: &quot;, error);
+  }); 
+
+  // Run the command
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    password TEXT,
+    age INTEGER,
+    phoneNum TEXT,
+    handicap TEXT
+  )`);
+
+  // Close the database connection
+  db.close();
+}
+
+/**
+ * Get all the users saved into the database.
+ * 
+ * @returns the users present inside the database.
+ */
+async function getAllUsers() {
+  // Connect to the database
+  const db = connectDB();
+
+  // Setup the error
+  db.on(&quot;error&quot;, function(error) {
+    console.log(&quot;Error reading users: &quot;, error);
+  }); 
+
+  // Get all the rows and return them to the application
+  return new Promise((resolve, reject) =&gt; {
+    db.all(&#039;SELECT * FROM users&#039;, (error, rows) =&gt; {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+    });
+
+    // Don&#039;t forget to close the database connection when done
+    db.close();
+  });
+}
+
+async function getUserDataPerUser(id) {
+  const db = connectDB();
+
+  db.on(&quot;error&quot;, function(error) {
+    console.log(&quot;Error reading users: &quot;, error);
+  });
+
+  return new Promise((resolve, reject) =&gt; {
+    const query = `SELECT * FROM users WHERE id = ?`;
+
+    db.all(query, [id], (error, rows) =&gt; {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(rows);
+      }
+    });
+
+    // Don&#039;t forget to close the database connection when done
+    db.close();
+  });
+}
+
+/**
+ * Populate the database with initial data.
+ */
+function populateDB() {
+  // Connect to the database
+  const db = connectDB();
+
+  // Your populate logic here
+
+  // Close the database connection
+  db.close();
+}
+
+/**
+ * Inserts a user into the database.
+ *
+ * @param {Object} user - The user object to be inserted.
+ * @returns {Promise&lt;Object&gt;} - A promise that resolves with a message indicating the success of the operation.
+ * @returns {string} message - The message indicating the success of the operation.
+ */
+async function insertUser(user) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Check if the user already exists
+  const existingUser = await new Promise((resolve, reject) =&gt; {
+    db.get(&#039;SELECT * FROM users WHERE name = ? AND password = ?&#039;, [user.name, user.password], (error, row) =&gt; {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+
+  if (existingUser) {
+    // User exists, return success response
+    return { message: &#039;User logged in successfully&#039; };
+  }
+
+  // Insert the user into the database
+  db.run(&#039;INSERT INTO users (name, password, age, phoneNum, handicap) VALUES (?, ?, ?, ?, ?)&#039;,
+    [user.name, user.password, user.age || null, user.phoneNum, user.handicap || null], // Use an array for values
+
+    // Callback function to handle errors
+    function (error) {
+      if (error) {
+        console.error(&#039;Error inserting user:&#039;, error);
+      }
+
+      // Close the database connection
+      db.close();
+    }
+  );
+
+  return { message: &#039;User registered successfully&#039; };
+}
+
+/**
+ * Logs in a user by checking if their username and password match the ones stored in the database.
+ *
+ * @param {Object} user The user object containing the username and password.
+ *
+ * @returns {Promise&lt;{message: string}|{message: string, userId}&gt;} - A promise that resolves with an object containing a success message and the user ID if the login is successful, or
+ * an object containing an error message if the login is unsuccessful.
+ */
+async function loginUser(user) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Check if the user exists and the password matches
+  const existingUser = await new Promise((resolve, reject) =&gt; {
+    db.get(&#039;SELECT * FROM users WHERE name = ? AND password = ?&#039;, [user.username, user.password], (error, row) =&gt; {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+
+  // Close the database connection
+  db.close();
+
+  if (existingUser) {
+    currentUser = existingUser.id;
+
+    // User exists, return success response with user ID
+    return { message: &#039;User logged in successfully&#039;, userId: existingUser.id };
+  } else {
+    // User does not exist or incorrect password, return error response
+    return { message: &#039;Invalid credentials&#039; };
+  }
+}
+
+// gets current user that&#039;s logged in
+function currentLoggedInUser() {
+  return currentUser;
+}
+
+// Update user data by ID in the updateUser function
+async function updateUser(user) {
+  // Connect to the database
+  const db = connectDB();
+
+  // Check if the user already exists
+  const existingUser = await new Promise((resolve, reject) =&gt; {
+    db.get(&#039;SELECT * FROM users WHERE id = ?&#039;, [user.id], (error, row) =&gt; {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+
+  if (existingUser) {
+    // User exists, update specific fields in the database
+    db.run(&#039;UPDATE users SET name = ?, age = ?, handicap = ?, phoneNum = ? WHERE id = ?&#039;,
+      [user.name, user.age || null, user.handicap || null, user.phoneNum, user.id],
+
+      // Callback function to handle errors
+      function (error) {
+        if (error) {
+          console.error(&#039;Error updating user:&#039;, error);
+        }
+
+        // Close the database connection
+        db.close();
+      }
+    );
+
+    return { message: &#039;User updated successfully&#039; };
+  } else {
+    // User does not exist, return an error message
+    return { message: &#039;User not found. Unable to update.&#039; };
+  }
+}
+
+// Export the different parts of the modules
+module.exports = {
+  &#039;connectDB&#039;: connectDB,
+  &#039;initializeDB&#039;: initializeDB,
+  &#039;populateDB&#039;: populateDB,
+  &#039;getAllUsers&#039;: getAllUsers,
+  &#039;getUserDataPerUser&#039;: getUserDataPerUser,
+  &#039;insertUser&#039;: insertUser,
+  &#039;loginUser&#039;: loginUser,
+  &#039;updateUser&#039;: updateUser,
+  &#039;currentLoggedInUser&#039;: currentLoggedInUser
+};</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
