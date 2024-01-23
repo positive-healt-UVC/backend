@@ -43,8 +43,7 @@ jobs:
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./gateway
         run: |
-          find ./ -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d reports ./gateway
-    
+           find ./ -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 npx plato -r -d reports
 
       - name: Set up Git
         run: |
@@ -61,8 +60,8 @@ jobs:
 
       - name: Delete existing content in gh-pagina branch
         run: |
-          git rm -r '*'
-          git commit -m "Remove existing content" || true
+            git rm -r '*'
+            git commit -m "Remove existing content" || true
 
       - name: Delete existing temp directory
         run: rm -rf temp
