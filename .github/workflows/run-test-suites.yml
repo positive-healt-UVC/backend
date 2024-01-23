@@ -31,7 +31,7 @@ jobs:
           git clean -fdX --exclude=.gitignore
           git commit -m "Clean gh-pagina branch" || true
           git push origin gh-pagina 
-          git checkout -f ${{ env.GH_PAGES_BRANCH }}
+          git checkout -f $GH_PAGES_BRANCH
 
       - name: Setup gateway microservice
         working-directory: ./gateway
