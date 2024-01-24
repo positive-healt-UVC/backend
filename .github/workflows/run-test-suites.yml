@@ -61,9 +61,9 @@ jobs:
         run: |
           npm install cloc plato --save-dev
 
-      # - name: Count Lines of Code
-      #   working-directory: ./gateway
-      #   run: npx cloc .
+      - name: Count Lines of Code
+        working-directory: ./gateway
+        run: npx cloc .
 
       - name: Run Plato (Cyclomatic Complexity)
         working-directory: ./
