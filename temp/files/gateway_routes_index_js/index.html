@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - gateway/routes/index.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>gateway/routes/index.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">75.89</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">169</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">20.24</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">0.67</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">// Get all the dependencies for the server
+const express = require(&quot;express&quot;);
+const router = express.Router();
+const axios = require(&quot;axios&quot;);
+const registry = require(&quot;./registry.json&quot;);
+
+let test = 1232345678
+let testest = 22222222222222222222222222
+
+/**
+ * Print information on the incoming request to the console.
+ * The format of the message will be: &quot;Incoming request: [METHOD] URL&quot;.
+ * All capitalized parts of this string will be replaced with their values.
+ * 
+ * Parameters need to be provided and be not empty.
+ * If they are not, an error is printed to the console instead.
+ * 
+ * @param {string} method the method used to create the request (POST).
+ * @param {string} url the url accessed by the request (/example/example).
+ */
+function logIncomingRequest(method, url) {
+  // When all data has correctly been provided, print the info with the request details
+  if (method &amp;&amp; url) console.info(`Incoming request: [${method}] ${url}`);
+
+  // When the data isn&#039;t present, print an error
+  else console.error(&#039;Incoming request with invalid parameters.&#039;);
+}
+
+/**
+ * Check whether a micro service is registered in the registry file.
+ * 
+ * @param {string} requestApi the requested micro service.
+ * @returns true if the service exists, false otherwise.
+ */
+function serviceExist(requestApi) {
+  return registry.services[requestApi] !== undefined;
+}
+
+/**
+ * Create a URL to the target micro service.
+ * 
+ * @param {object} parameters the parameters bundled with the original request (req.params).
+ * @returns the formatted target url (http://API:PORT/ROUTE/PARAMETERS), null if provided data was invalid.
+ * @throws Throws a descriptive error when: 
+ * [1] the service is not registered
+ * [2] not all required data is available.
+ */
+function createTargetUrl(parameters) {
+  // Check whether all the required data is present, 
+  try {
+    if (parameters &amp;&amp; parameters.apiName &amp;&amp; parameters.path &amp;&amp; typeof parameters[&#039;0&#039;] === &#039;string&#039;) {
+      return registry.services[parameters.apiName].url
+        + parameters.path + &#039;/&#039;
+        + parameters[&#039;0&#039;];
+    }
+  } 
+  
+  // The requrested service is not registered
+  catch (error) {
+    throw Error(&quot;Requested service is not available, a check is available through the serviceExist method&quot;);
+  }
+
+  // Not all required data was set
+  throw Error(&quot;The &#039;parameters&#039; didn&#039;t contain the required attributes: apiName, path and 0&quot;);
+}
+
+/**
+ * Perform a call to a target microservice using the request object.
+ * While performing the call, this function create the url using the createTargetUrl method.
+ * 
+ * @param {object} originalRequest the original request (req).
+ * @returns the axios call to the micro service.
+ */
+function performRequest(originalRequest) {
+  return axios({
+    // Pass through the method used to connect to this route
+    method: originalRequest.method,
+
+    // Create the URL to the target micro service
+    url: createTargetUrl(originalRequest.params),
+
+    // Define the headers and disable cache to allow succeeding calls
+    headers: {
+      ...originalRequest.headers,
+      &#039;Cache-Control&#039;: &#039;no-cache&#039;,
+    },
+
+    // Set the response type to arraybuffer to allow binary data to be sent
+    responseType: &#039;arraybuffer&#039;,
+
+    // Copy the data from the body of the original request into the new request
+    data: originalRequest.body,
+  })
+}
+
+/**
+ * [Incomplete]
+ * Create a function that can be used to handle the response of the Axios call.
+ * 
+ * @param {object} responseHandler the response object of the original request (res).
+ * @returns a function that can be used as event handler in then/catch.
+ */
+function createResponseHandler(responseHandler) {
+  return (response) =&gt; {
+    if (response.headers[&#039;content-type&#039;].startsWith(&#039;image/&#039;)) {
+      responseHandler.setHeader(&#039;Content-Type&#039;, &#039;image/jpeg&#039;);
+      responseHandler.setHeader(&#039;Content-Length&#039;, response.data.length);
+      responseHandler.write(response.data, &#039;binary&#039;);
+      responseHandler.end();
+    } else {
+      responseHandler.send(response.data);
+    }
+  }
+}
+
+/**
+ * [Incomplete]
+ * Create a function that can deal with errors during the Axios call.
+ * 
+ * @param {object} responseHandler the response object of the original request (res).
+ * @returns a function that can be used as event handler in then/catch.
+ */
+function createErrorHandler(responseHandler) {
+  return (error) =&gt; {
+    console.error(error);
+  }
+}
+
+/**
+ * [Incomplete]
+ * Deal with the situation where the requested service does not exist.
+ * 
+ * @param {object} responseHandler responseHandler the response object of the original request (res).
+ */
+function handleNotDefined(responseHandler) {
+  responseHandler.status(404);
+  responseHandler.send(&quot;API is not registered.&quot;);
+}
+
+// Create a route that catches all incoming requests and redirects them to the right microservice
+router.all(&quot;/:apiName/:path/*&quot;, (req, res) =&gt; {
+  // Log the request to the console
+  logIncomingRequest(req.method, req.url);
+
+  // Check whether the requested service exist
+  if (serviceExist(req.params.apiName)) {
+    // Perform the request to the target service
+    performRequest(req)
+      .then(createResponseHandler(res))
+      .catch(createErrorHandler(res));
+
+    // Stop the execution of the function
+    return;
+  }
+
+  // The requested service does not exit, handle the not defined situation
+  handleNotDefined(res);
+});
+
+module.exports = {
+  &quot;router&quot;: router,
+  &quot;logIncomingRequest&quot;: logIncomingRequest,
+  &quot;serviceExist&quot;: serviceExist,
+  &quot;createTargetUrl&quot;: createTargetUrl,
+  &quot;performRequest&quot;: performRequest,
+  &quot;createResponseHandler&quot;: createResponseHandler,
+  &quot;createErrorHandler&quot;: createErrorHandler,
+  &quot;handleNotDefined&quot;: handleNotDefined
+};</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

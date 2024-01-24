@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - gateway/tests/routes.test.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>gateway/tests/routes.test.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">76.73</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">118</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">16.94</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.10</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">// Import the routes module and the services file
+const routes = require(&#039;../routes/index&#039;);
+const services = require(&#039;../routes/registry.json&#039;).services;
+
+/** Variables for repeated tests */
+const invalidLoggingParameters = [
+    [null, &#039;/example&#039;], [&#039;GET&#039;, null], [null, null], [&#039;&#039;, &#039;/example&#039;], [&#039;GET&#039;, &#039;&#039;], [&#039;&#039;, &#039;&#039;]
+];
+
+const incompleteUrlData = [
+    [{ &#039;path&#039;: &#039;a&#039;, &#039;0&#039;: &#039;a&#039; }], [{ &#039;apiName&#039;: &#039;a&#039;, &#039;0&#039;: &#039;a&#039; }], [{ &#039;apiName&#039;: &#039;a&#039;, &#039;path&#039;: &#039;a&#039; }],
+    [{ &#039;apiName&#039;: null, &#039;path&#039;: &#039;a&#039;, &#039;0&#039;: &#039;a&#039; }], [{ &#039;apiName&#039;: &#039;a&#039;, &#039;path&#039;: null, &#039;0&#039;: &#039;a&#039; }], [{ &#039;apiName&#039;: &#039;a&#039;, &#039;path&#039;: &#039;a&#039;, &#039;0&#039;: null }],
+    [{ &#039;apiName&#039;: null, &#039;path&#039;: null, &#039;0&#039;: &#039;a&#039; }], [{ &#039;apiName&#039;: null, &#039;path&#039;: &#039;a&#039;, &#039;0&#039;: null }], [{ &#039;apiName&#039;: &#039;a&#039;, &#039;path&#039;: null, &#039;0&#039;: null }],
+    [{ &#039;apiName&#039;: null, &#039;path&#039;: null, &#039;0&#039;: null }], [null]
+]
+
+// Test whether incoming request are logged correctly
+describe(&#039;Logging Incoming Requests&#039;, () =&gt; {
+    // Test a valid request
+    test(&#039;Log an incoming request&#039;, () =&gt; {
+        console.info = jest.fn();
+        console.error = jest.fn();
+
+        routes.logIncomingRequest(&#039;GET&#039;, &#039;/example&#039;);
+
+        expect(console.info).toHaveBeenCalledWith(&#039;Incoming request: [GET] /example&#039;);
+        expect(console.error).not.toHaveBeenCalled();
+    });
+
+    // Test invalid parameter combinations
+    test.each(invalidLoggingParameters)(&#039;Invalid logging attempts&#039;, (first, second) =&gt; {
+        console.info = jest.fn();
+        console.error = jest.fn();
+
+        routes.logIncomingRequest(first, second);
+
+        expect(console.error).toHaveBeenCalledWith(&#039;Incoming request with invalid parameters.&#039;);
+        expect(console.info).not.toHaveBeenCalled();
+    });
+});
+
+// Check whether a given service exists
+describe(&#039;Does Service Exists&#039;, () =&gt; {
+    // Test valid parameter
+    test(&#039;Existing service&#039;, () =&gt; {
+        const service = Object.keys(services)[0];
+        const result = routes.serviceExist(service);
+        expect(result).toBe(true);
+    });
+
+    // Test invalid parameter
+    test(&#039;Non-existing service&#039;, () =&gt; {
+        const randomService = (Math.random() + 1).toString(36).substring(2);
+        const result = routes.serviceExist(randomService);
+        expect(result).toBe(false);
+    })
+
+    // Test empty string
+    test(&#039;Empty string for service&#039;, () =&gt; {
+        const result = routes.serviceExist(&#039;&#039;);
+        expect(result).toBe(false);
+    })
+
+    // Test null
+    test(&#039;Null for service&#039;, () =&gt; {
+        const result = routes.serviceExist(null);
+        expect(result).toBe(false);
+    })
+});
+
+// Test whether the URL&#039;s are created correctly
+describe(&#039;Creating the Target URL&#039;, () =&gt; {
+    // Valid URL with parameters
+    test(&#039;Valid data with parameters&#039;, () =&gt; {
+        const service = Object.keys(services)[0];
+        const requestParameters = {
+            &#039;apiName&#039;: service,
+            &#039;path&#039;: &#039;example&#039;,
+            &#039;0&#039;: &#039;1&#039;
+        };
+
+        const result = routes.createTargetUrl(requestParameters);
+        const exampleURL = services[service].url + &#039;example/1&#039;
+
+        expect(result).toBe(exampleURL)
+    });
+
+    // Valid URL without parameters
+    test(&#039;Valid data without parameters&#039;, () =&gt; {
+        const service = Object.keys(services)[0];
+        const requestParameters = {
+            &#039;apiName&#039;: service,
+            &#039;path&#039;: &#039;example&#039;,
+            &#039;0&#039;: &#039;&#039;
+        };
+
+        const result = routes.createTargetUrl(requestParameters);
+        const exampleURL = services[service].url + &#039;example/&#039;
+
+        expect(result).toBe(exampleURL)
+    });
+
+    // Invalid API Name
+    test(&#039;Invalid service&#039;, () =&gt; {
+        const requestParameters = {
+            &#039;apiName&#039;: (Math.random() + 1).toString(36).substring(2),
+            &#039;path&#039;: &#039;example&#039;,
+            &#039;0&#039;: &#039;&#039;
+        };
+
+        expect(() =&gt; routes.createTargetUrl(requestParameters)).toThrow(/service|Service/)
+    });
+
+    // Incomplete data
+    test.each(incompleteUrlData)(&#039;Incomplete data&#039;, (data) =&gt; {
+        expect(() =&gt; routes.createTargetUrl(data)).toThrow(/required|Required/)
+    });
+});</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
